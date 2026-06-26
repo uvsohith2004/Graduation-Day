@@ -3,7 +3,6 @@ import { db } from '../database/db';
 import * as schema from '../database/schemas';
 
 import { AuthController } from './auth.controller';
-import { ConfigService } from '@nestjs/config';
 
 @Global()
 @Module({
@@ -11,14 +10,13 @@ import { ConfigService } from '@nestjs/config';
   providers: [
     {
       provide: 'BETTER_AUTH',
-      inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => {
+      useFactory: async () => {
         const { betterAuth } = await import('better-auth');
         const { drizzleAdapter } = await import('better-auth/adapters/drizzle');
 
         return betterAuth({
-          baseURL: configService.getOrThrow<string>('BETTER_AUTH_URL'),
-          trustedOrigins: [process.env.WEB_URL || 'http://localhost:5173'],
+          baseURL: process.env.BETTER_AUTH_URL || process.env.BASE_URL || 'https://pbrvits-graduation-day.vercel.app',
+          trustedOrigins: [process.env.WEB_URL || 'http://localhost:5173', 'https://pbrvits-graduation-day.vercel.app'],
           database: drizzleAdapter(db, {
             provider: 'pg',
             schema: schema,
