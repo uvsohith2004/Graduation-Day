@@ -1,5 +1,5 @@
 import { createClient } from "@repo/auth/client";
 
 export const authClient = createClient({
-  baseURL: "http://localhost:5173",
+  baseURL: import.meta.env.VITE_AUTH_BASE_URL,
 });
