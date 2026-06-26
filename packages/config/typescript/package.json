@@ -1,0 +1,13 @@
+{
+  "name": "@repo/typescript-config",
+  "version": "0.0.0",
+  "private": true,
+  "license": "MIT",
+  "exports": {
+    "./base": "./base.json",
+    "./nest": "./nestjs.json",
+    "./vite-react": "./vite-react.json",
+    "./vite-node": "./vite-node.json",
+    "./node-lib": "./node-lib.json"
+  }
+}

@@ -1,0 +1,22 @@
+{
+    "name": "@repo/auth",
+    "version": "0.0.1",
+    "private": true,
+    "type": "module",
+    "exports": {
+        "./server": "./src/server/index.ts",
+        "./client": "./src/client/index.ts"
+    },
+    "scripts": {
+        "typecheck": "tsc --noEmit"
+    },
+    "dependencies": {
+        "better-auth": "^1.2.7",
+        "@repo/db": "workspace:*"
+    },
+    "devDependencies": {
+        "@repo/typescript-config": "workspace:*",
+        "tsx": "^4.21.0",
+        "typescript": "^6.0.3"
+    }
+}

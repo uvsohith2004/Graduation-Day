@@ -1,0 +1,12 @@
+{
+    "extends": "@repo/typescript-config/node-lib",
+    "compilerOptions": {
+        "outDir": "dist",
+        "declaration": true,
+        "baseUrl": ".",
+        "paths": {}
+    },
+    "include": [
+        "src"
+    ]
+}

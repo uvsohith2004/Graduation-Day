@@ -1,7 +1,10 @@
 packages:
   - "apps/*"
   - "packages/*"
+  - "packages/config/*"
 
 allowBuilds:
-  esbuild: true
-  msw: false
+  '@swc/core': false
+  esbuild: false
+  msw: true
+  unrs-resolver: true
