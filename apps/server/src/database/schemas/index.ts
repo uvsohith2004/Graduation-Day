@@ -1,3 +1,3 @@
-export * from './auth.schema.js';
-export * from './register.schema.js';
-export * from './eligibility.schema.js';
+export * from './auth.schema';
+export * from './register.schema';
+export * from './eligibility.schema';

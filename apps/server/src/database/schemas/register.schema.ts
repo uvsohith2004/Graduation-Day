@@ -1,5 +1,5 @@
 import { pgTable, text, timestamp, numeric, boolean } from "drizzle-orm/pg-core";
-import { user } from "./auth.schema.js";
+import { user } from "./auth.schema";
 
 
 export const alumni = pgTable('alumni', {
