@@ -1,5 +1,6 @@
 import { Controller, Post, Get, Body, UseGuards, ValidationPipe, HttpException, HttpStatus } from '@nestjs/common';
-import { AuthGuard, Session } from '@thallesp/nestjs-better-auth';
+import { AuthGuard } from '../auth/auth.guard';
+import { Session } from '../auth/session.decorator';
 import { RegisterService } from './register.service';
 import { CreateAlumniDto } from './dto/create-alumni.dto';
 

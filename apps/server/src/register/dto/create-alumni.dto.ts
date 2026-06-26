@@ -5,7 +5,7 @@ import {
   Matches,
   MinLength,
 } from 'class-validator';
-import { branches } from '../constants';
+import { branches } from '../constants/index';
 
 export class CreateAlumniDto {
   @IsString()

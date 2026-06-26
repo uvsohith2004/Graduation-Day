@@ -19,9 +19,7 @@
   "engines": {
     "node": ">=20"
   },
-  "pnpm": {
-    "overrides": {
-      "jose": "4.15.9"
-    }
+  "dependencies": {
+    "jose": "^6.2.3"
   }
 }

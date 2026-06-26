@@ -1,5 +1,5 @@
 import { Controller, Post, Body, UseGuards, HttpException, HttpStatus } from '@nestjs/common';
-import { AuthGuard } from '@thallesp/nestjs-better-auth';
+import { AuthGuard } from '../auth/auth.guard';
 import { StorageService } from './storage.service';
 
 @Controller('api/mutations')
