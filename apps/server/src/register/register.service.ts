@@ -1,6 +1,6 @@
 import { Injectable, Inject, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectDB } from '../database/inject-db.decorator';
-import { alumni,eligibility } from 'src/database/schemas';
+import { alumni, eligibility } from '../database/schemas';
 import { eq } from 'drizzle-orm';
 import { CreateAlumniDto } from './dto/create-alumni.dto';
 
@@ -10,24 +10,28 @@ export class RegisterService {
 
   async createAlumni(userId: string, email: string, payload: CreateAlumniDto) {
     try {
-      
       const existingUser = await this.db.query.alumni.findFirst({
         where: eq(alumni.userId, userId),
       });
       if (existingUser) {
-        throw new HttpException("You have already registered.", HttpStatus.CONFLICT);
+        throw new HttpException(
+          'You have already registered.',
+          HttpStatus.CONFLICT,
+        );
       }
-
 
       const existingRoll = await this.db.query.alumni.findFirst({
         where: eq(alumni.hall_ticket_number, payload.hallTicketNumber),
       });
       if (existingRoll) {
-        throw new HttpException("This roll number has already been registered.", HttpStatus.CONFLICT);
+        throw new HttpException(
+          'This roll number has already been registered.',
+          HttpStatus.CONFLICT,
+        );
       }
 
       await this.db.insert(alumni).values({
-        id: crypto.randomUUID(), 
+        id: crypto.randomUUID(),
         userId,
         email,
         student_name: payload.studentName,
@@ -38,7 +42,7 @@ export class RegisterService {
         guest_count: payload.numberOfGuests,
         photo: payload.photo,
       });
-      
+
       return { success: true };
     } catch (error) {
       console.error('Error creating alumni:', error);
@@ -57,13 +61,19 @@ export class RegisterService {
       where: eq(alumni.hall_ticket_number, rollNo.toUpperCase()),
     });
     if (existingRoll) {
-      throw new HttpException("This roll number has already been registered.", HttpStatus.CONFLICT);
+      throw new HttpException(
+        'This roll number has already been registered.',
+        HttpStatus.CONFLICT,
+      );
     }
     const allowedHallTicketNumber = await this.db.query.eligibility.findFirst({
       where: eq(eligibility.rollNumber, rollNo.toUpperCase()),
     });
-    if(!allowedHallTicketNumber){
-      throw new HttpException("This roll number isn't on the list.", HttpStatus.BAD_REQUEST);
+    if (!allowedHallTicketNumber) {
+      throw new HttpException(
+        "This roll number isn't on the list.",
+        HttpStatus.BAD_REQUEST,
+      );
     }
     return { eligible: true };
   }
