@@ -1,34 +1,39 @@
 {
-    "name": "@repo/db",
-    "version": "1.0.0",
-    "private": true,
-    "exports": {
-        ".": "./src/index.ts"
-    },
-    "scripts": {
-
-        "generate": "drizzle-kit generate",
-        "push": "drizzle-kit push",
-        "studio": "drizzle-kit studio",
-        "migrate": "drizzle-kit migrate"
-    },
-    "keywords": [],
-    "author": "",
-    "license": "ISC",
-    "dependencies": {
-        "@neondatabase/serverless": "^1.1.0",
-        "@types/pg": "^8.20.0",
-        "dotenv": "^17.4.2",
-        "drizzle-orm": "^0.45.2",
-        "pg": "^8.20.0",
-        "postgres": "^3.4.9",
-        "xlsx": "^0.18.5"
-    },
-    "devDependencies": {
-        "@repo/typescript-config": "workspace:*",
-        "@types/node": "^25.6.0",
-        "drizzle-kit": "^0.31.10",
-        "tsx": "^4.21.0",
-        "typescript": "^6.0.3"
+  "name": "@repo/db",
+  "version": "1.0.0",
+  "private": true,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "generate": "drizzle-kit generate",
+    "push": "drizzle-kit push",
+    "studio": "drizzle-kit studio",
+    "migrate": "drizzle-kit migrate"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@neondatabase/serverless": "^1.1.0",
+    "@types/pg": "^8.20.0",
+    "dotenv": "^17.4.2",
+    "drizzle-orm": "^0.45.2",
+    "pg": "^8.20.0",
+    "postgres": "^3.4.9",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "^25.6.0",
+    "drizzle-kit": "^0.31.10",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
 }

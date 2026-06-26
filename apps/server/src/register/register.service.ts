@@ -1,7 +1,7 @@
 import { Injectable, Inject, HttpException, HttpStatus } from '@nestjs/common';
 import type { Database } from '@repo/db';
 import { alumni, eligibility } from '@repo/db';
-import { eq } from '@repo/db';
+import { eq } from 'drizzle-orm';
 import { CreateAlumniDto } from './dto/create-alumni.dto';
 
 @Injectable()
