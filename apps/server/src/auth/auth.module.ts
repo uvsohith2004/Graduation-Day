@@ -15,7 +15,7 @@ import { AuthController } from './auth.controller';
         const { drizzleAdapter } = await import('better-auth/adapters/drizzle');
 
         return betterAuth({
-          baseURL: process.env.BETTER_AUTH_URL || process.env.BASE_URL || 'https://pbrvits-graduation-day.vercel.app',
+          baseURL: process.env.BETTER_AUTH_URL || process.env.BASE_URL || 'https://pbrvitms-graduation-day.vercel.app',
           trustedOrigins: [process.env.WEB_URL || 'http://localhost:5173', 'https://pbrvits-graduation-day.vercel.app'],
           database: drizzleAdapter(db, {
             provider: 'pg',
