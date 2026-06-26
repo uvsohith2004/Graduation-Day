@@ -21,6 +21,12 @@ import { AuthController } from './auth.controller';
             provider: 'pg',
             schema: schema,
           }),
+          advanced: {
+            defaultCookieAttributes: {
+              sameSite: 'none',
+              secure: true,
+            },
+          },
           socialProviders: {
             google: {
               clientId: process.env.GOOGLE_CLIENT_ID!,
