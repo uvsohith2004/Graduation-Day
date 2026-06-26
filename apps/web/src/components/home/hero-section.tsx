@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { Button } from '@repo/ui/components/button';
-import { ArrowRight, Sparkles, Calendar, Pin, Locate, MapPin, CalendarDays } from 'lucide-react';
+import { ArrowRight, Sparkles, Calendar, CalendarDays, MapPin } from 'lucide-react';
 import { useNavigate } from '@tanstack/react-router';
 
 import homeData from '@/constants/home-data';

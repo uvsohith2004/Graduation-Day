@@ -1,4 +1,4 @@
-import { ComponentPropsWithoutRef } from "react";
+import { type ComponentPropsWithoutRef } from "react";
  
 import { cn } from "@repo/ui/lib/utils";
  

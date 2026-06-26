@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate, Link } from '@tanstack/react-router';
 import { useRegistrationQuery } from '@/api/queries';
 import { authClient } from '@/lib/auth-client';
 import { useEffect, useState } from 'react';
-import { Download, Loader2, CheckCircle2, ArrowRight } from 'lucide-react';
+import { Download, Loader2, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@repo/ui/components/button';
 import { generateTicketImage } from '@/lib/ticket-generator';
@@ -13,7 +13,6 @@ export const Route = createFileRoute('/tickets/$userId')({
 });
 
 function TicketComponent() {
-  const { userId } = Route.useParams();
   const navigate = useNavigate();
   const { data: session, isPending: isAuthPending } = authClient.useSession();
   const { data: ticket, isPending: isTicketPending } = useRegistrationQuery();
