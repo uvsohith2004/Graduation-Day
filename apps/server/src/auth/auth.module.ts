@@ -2,8 +2,11 @@ import { Module, Global } from '@nestjs/common';
 import { db } from "../database/db"; 
 import * as schema from "../database/schemas"; 
 
+import { AuthController } from './auth.controller';
+
 @Global()
 @Module({
+  controllers: [AuthController],
   providers: [
     {
       provide: 'BETTER_AUTH',
