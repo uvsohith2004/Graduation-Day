@@ -1,5 +1,6 @@
 export class DatabaseError extends Error {
   readonly code: string;
+  cause?: unknown;
 
   constructor(message: string, code: string, cause?: unknown) {
     super(message);
