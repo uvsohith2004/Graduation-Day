@@ -3,14 +3,10 @@
     "version": "1.0.0",
     "private": true,
     "exports": {
-        ".": {
-            "types": "./dist/index.d.ts",
-            "import": "./dist/index.js",
-            "default": "./dist/index.js"
-        }
+        ".": "./src/index.ts"
     },
     "scripts": {
-        "build": "tsc",
+
         "generate": "drizzle-kit generate",
         "push": "drizzle-kit push",
         "studio": "drizzle-kit studio",
