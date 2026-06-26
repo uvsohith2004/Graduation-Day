@@ -1,7 +1,8 @@
-import { createClient } from "@repo/auth/client";
-
+import { createAuthClient } from "better-auth/react"
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
+export const authClient = createAuthClient({
+    baseURL: BACKEND_URL
+})
 
-export const authClient = createClient({
-  baseURL: `${BACKEND_URL}`,
-});
+
+

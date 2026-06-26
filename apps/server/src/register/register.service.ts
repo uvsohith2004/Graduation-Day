@@ -1,16 +1,16 @@
 import { Injectable, Inject, HttpException, HttpStatus } from '@nestjs/common';
-import type { Database } from '@repo/db';
-import { alumni, eligibility } from '@repo/db';
+import { InjectDB } from '../database/inject-db.decorator';
+import { alumni, eligibility } from 'src/database/schemas';
 import { eq } from 'drizzle-orm';
 import { CreateAlumniDto } from './dto/create-alumni.dto';
 
 @Injectable()
 export class RegisterService {
-  constructor(@Inject('DATABASE') private readonly db: Database) {}
+  constructor(@InjectDB() private readonly db) {}
 
   async createAlumni(userId: string, email: string, payload: CreateAlumniDto) {
     try {
-      // Defensive check: has this user already registered?
+      
       const existingUser = await this.db.query.alumni.findFirst({
         where: eq(alumni.userId, userId),
       });
@@ -18,7 +18,7 @@ export class RegisterService {
         throw new HttpException("You have already registered.", HttpStatus.CONFLICT);
       }
 
-      // Defensive check: has this roll number already been used?
+
       const existingRoll = await this.db.query.alumni.findFirst({
         where: eq(alumni.hall_ticket_number, payload.hallTicketNumber),
       });

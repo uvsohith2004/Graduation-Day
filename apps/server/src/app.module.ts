@@ -6,16 +6,16 @@ import { AppService } from './app.service';
 
 import { DatabaseModule } from './database/database.module';
 import { ConfigModule } from './config/config.module';
-import { AuthModule } from './auth/auth.module';
+import { AuthModule } from '@thallesp/nestjs-better-auth';
 import { RegisterModule } from './register/register.module';
 
 import { StorageModule } from './storage/storage.module';
-
+import { auth } from "./auth"
 @Module({
   imports: [
     ConfigModule,
     DatabaseModule,
-    AuthModule,
+    AuthModule.forRoot({auth}),
     RegisterModule,
     StorageModule,
     ThrottlerModule.forRoot([{

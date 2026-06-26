@@ -1,25 +1,15 @@
-import { Module, Global } from '@nestjs/common';
-import { createPool, createDatabase } from '@repo/db';
-import { ConfigService } from '../config/config.service';
+import { Global, Module, Provider } from '@nestjs/common';
+import { DATABASE_CONNECTION } from './database-connection';
+import { db } from './db';
+
+const databaseProvider: Provider = {
+  provide: DATABASE_CONNECTION,
+  useValue: db,
+};
 
 @Global()
 @Module({
-  providers: [
-    {
-      provide: 'DATABASE_POOL',
-      useFactory: (configService: ConfigService) => {
-        return createPool({
-          connectionString: configService.getDatabaseUrl(),
-        });
-      },
-      inject: [ConfigService],
-    },
-    {
-      provide: 'DATABASE',
-      useFactory: (pool: ReturnType<typeof createPool>) => createDatabase(pool),
-      inject: ['DATABASE_POOL'],
-    },
-  ],
-  exports: ['DATABASE_POOL', 'DATABASE'],
+  providers: [databaseProvider],
+  exports: [databaseProvider],
 })
-export class DatabaseModule { }
+export class DatabaseModule {}

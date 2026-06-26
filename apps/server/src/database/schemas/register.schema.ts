@@ -1,5 +1,6 @@
 import { pgTable, text, timestamp, numeric, boolean } from "drizzle-orm/pg-core";
-import { user } from "../auth/auth.schema";
+import { user } from "./auth.schema";
+
 
 export const alumni = pgTable('alumni', {
   id: text('id').primaryKey(),
