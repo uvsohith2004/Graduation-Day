@@ -1,4 +1,14 @@
 export const generateTicketImage = (ticket: any): Promise<string> => {
+  const formatTicketDate = (dateStr: string) => {
+    if (!dateStr) return "TBD";
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+      const [day, month, year] = parts;
+      const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+      return date.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
+    }
+    return dateStr;
+  };
   return new Promise((resolve, reject) => {
     const canvas = document.createElement("canvas")
     const ctx = canvas.getContext("2d")
@@ -147,8 +157,8 @@ export const generateTicketImage = (ticket: any): Promise<string> => {
         h * offsets.hallTicketY
       )
       ctx.fillText(ticket.branch.toUpperCase(), tX, h * offsets.branchY)
-      ctx.fillText("Dec 06, 2026", tX, h * offsets.dateY)
-      ctx.fillText("09:00 AM", tX, h * offsets.timeY)
+      ctx.fillText(formatTicketDate(ticket.event_date), tX, h * offsets.dateY)
+      ctx.fillText(ticket.event_time || "TBD", tX, h * offsets.timeY)
       ctx.fillText(ticket.guest_count.toString(), tX, h * offsets.guestsY)
 
       // Load Profile Photo

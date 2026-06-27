@@ -10,7 +10,7 @@ if (!DATABASE_URL) {
 }
 
 export default {
-schema: "./src/database/schemas/eligibility.schema.ts",
+  schema: "./src/database/schemas/*.schema.ts",
 
 
   out: "./drizzle",

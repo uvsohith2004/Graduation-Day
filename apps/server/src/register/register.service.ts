@@ -3,6 +3,7 @@ import { InjectDB } from '../database/inject-db.decorator';
 import { alumni, eligibility } from '../database/schemas';
 import { eq } from 'drizzle-orm';
 import { CreateAlumniDto } from './dto/create-alumni.dto';
+import { branches } from './constants';
 
 @Injectable()
 export class RegisterService {
@@ -30,6 +31,15 @@ export class RegisterService {
         );
       }
 
+      const eventDetails = branches[payload.branch as keyof typeof branches];
+      
+      if (!eventDetails) {
+        throw new HttpException(
+          'Invalid branch selected.',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
       await this.db.insert(alumni).values({
         id: crypto.randomUUID(),
         userId,
@@ -41,6 +51,9 @@ export class RegisterService {
         will_attend: payload.willAttend === 'Yes',
         guest_count: payload.numberOfGuests,
         photo: payload.photo,
+        event_date: eventDetails.date,
+        event_time: eventDetails.time,
+        venue: eventDetails.venue,
       });
 
       return { success: true };

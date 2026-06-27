@@ -16,6 +16,9 @@ export const alumni = pgTable('alumni', {
   will_attend: boolean('will_attend').default(false).notNull(),
   guest_count: numeric('guest_count').notNull(),
   photo: text('photo').notNull(),
+  event_date: text('event_date').notNull(),
+  event_time: text('event_time').notNull(),
+  venue: text('venue').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').$onUpdate(() => new Date()).notNull(),
 });
