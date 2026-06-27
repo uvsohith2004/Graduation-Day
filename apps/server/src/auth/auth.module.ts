@@ -33,6 +33,9 @@ import { AuthController } from './auth.controller';
               clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
             },
           },
+          plugins: [
+            (await import('better-auth/plugins')).admin()
+          ]
         });
       },
     },

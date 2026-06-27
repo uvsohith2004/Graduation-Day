@@ -9,6 +9,7 @@ export const useRegistrationQuery = () => {
     const query = useQuery({
         queryKey: ["registration", session?.user?.id],
         queryFn: getRegistration,
+        enabled: !!session?.user?.id,   
       });
       return query
 

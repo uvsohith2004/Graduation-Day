@@ -1,0 +1,10 @@
+export const scheduleData = [
+  { id: 1, branch: "CSE", date: "04-07-2026", reportingTime: "07:30 AM", venue: "KVR Convention Hall" },
+  { id: 2, branch: "CSE-IOT", date: "04-07-2026", reportingTime: "07:30 AM", venue: "KVR Convention Hall" },
+  { id: 3, branch: "EEE", date: "04-07-2026", reportingTime: "07:30 AM", venue: "KVR Convention Hall" },
+  { id: 4, branch: "MBA", date: "04-07-2026", reportingTime: "07:30 AM", venue: "KVR Convention Hall" },
+  { id: 5, branch: "ECE", date: "05-07-2026", reportingTime: "07:30 AM", venue: "KVR Convention Hall" },
+  { id: 6, branch: "CSE-AI", date: "05-07-2026", reportingTime: "07:30 AM", venue: "KVR Convention Hall" },
+  { id: 7, branch: "CSE-AIML", date: "05-07-2026", reportingTime: "07:30 AM", venue: "KVR Convention Hall" },
+  { id: 8, branch: "CIVIL", date: "05-07-2026", reportingTime: "07:30 AM", venue: "KVR Convention Hall" },
+];

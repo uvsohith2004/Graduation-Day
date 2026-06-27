@@ -14,6 +14,7 @@ export const useCheckEligibilityMutation = () => {
   return useMutation({
     mutationFn: checkEligibility,
     onSuccess: () => {
+      
       toast.success("Eligibility confirmed!");
     },
     onError: (error: any) => {

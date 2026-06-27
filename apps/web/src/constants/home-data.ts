@@ -26,11 +26,10 @@ const homeData = {
   heroDescription:
     'A national level celebration of excellence. Join us in honoring the achievements, resilience, and future legacy of the Class of 2026.',
 
-  // Buttons
-  registerButton: 'Register Now',
+
+  registerButton: 'Generate Pass',
   scheduleButton: 'View Schedule',
 
-  // Venue
   venueName: 'KVR Convention',
   venueLocation: 'Jammalapalem, Kavali, SPSR Nellore District',
   eventAddress:

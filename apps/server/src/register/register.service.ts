@@ -75,6 +75,10 @@ export class RegisterService {
         HttpStatus.BAD_REQUEST,
       );
     }
-    return { eligible: true };
+    return { 
+      eligible: true,
+      studentName: allowedHallTicketNumber.studentName,
+      branch: allowedHallTicketNumber.branch 
+    };
   }
 }

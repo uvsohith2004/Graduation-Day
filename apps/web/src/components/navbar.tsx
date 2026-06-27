@@ -36,7 +36,7 @@ export function Navbar() {
         image: session.user.image,
       });
     } else if (session === null) {
-      // If explicitly null (logged out), clear the store
+
       setUser(null);
     }
   }, [session, setUser]);
@@ -62,7 +62,6 @@ export function Navbar() {
     >
       <nav className="mx-auto flex h-14 items-center justify-between px-4">
         
-        {/* LEFT: Brand */}
         <div 
           className="flex cursor-pointer items-center gap-2 rounded-full px-3 py-1.5 transition-colors hover:bg-accent/50"
           onClick={() => handleNavigate("/")}
@@ -71,20 +70,26 @@ export function Navbar() {
           <p className="font-bold text-sm tracking-wide">VITS ALUMNI HUB</p>
         </div>
 
-        {/* MIDDLE: Desktop Nav */}
+       
         <div className="hidden items-center gap-2 md:flex">
           <Button variant="ghost" size="sm" onClick={() => handleNavigate("/")} className="rounded-full h-8 px-4 text-xs font-medium">
             Home
           </Button>
-          <Button variant="ghost" size="sm" onClick={() => handleNavigate("/register")} className="rounded-full h-8 px-4 text-xs font-medium">
-            Register
-          </Button>
+          {session?.user?.role === 'admin' ? (
+            <Button variant="ghost" size="sm" onClick={() => handleNavigate("/dashboard")} className="rounded-full h-8 px-4 text-xs font-medium">
+              Dashboard
+            </Button>
+          ) : (
+            <Button variant="ghost" size="sm" onClick={() => handleNavigate("/register")} className="rounded-full h-8 px-4 text-xs font-medium">
+              Generate
+            </Button>
+          )}
           <Button variant="ghost" size="sm" onClick={() => handleNavigate("/schedule")} className="rounded-full h-8 px-4 text-xs font-medium">
             Schedule
           </Button>
         </div>
 
-        {/* RIGHT: Actions (Desktop & Mobile trigger) */}
+  
         <div className="flex items-center gap-3">
           <div className="hidden md:block">
             <ThemeToggle />
@@ -109,7 +114,7 @@ export function Navbar() {
                     <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                   </div>
                   <DropdownMenuSeparator className="bg-border/50" />
-                  <DropdownMenuItem onClick={() => handleNavigate("/tickets")} className="cursor-pointer py-2.5">
+                  <DropdownMenuItem onClick={() => user?.id && handleNavigate(`/tickets/${user.id}`)} className="cursor-pointer py-2.5">
                     <Ticket className="mr-2 h-4 w-4 text-primary" />
                     My Tickets
                   </DropdownMenuItem>
@@ -154,9 +159,15 @@ export function Navbar() {
                   <Button variant="ghost" className="justify-start text-sm h-10" onClick={() => handleNavigate("/")}>
                     <Home className="mr-3 h-4 w-4" /> Home
                   </Button>
-                  <Button variant="ghost" className="justify-start text-sm h-10" onClick={() => handleNavigate("/register")}>
-                    <Sparkles className="mr-3 h-4 w-4" /> Register
-                  </Button>
+                  {session?.user?.role === 'admin' ? (
+                    <Button variant="ghost" className="justify-start text-sm h-10" onClick={() => handleNavigate("/dashboard")}>
+                      <Sparkles className="mr-3 h-4 w-4" /> Dashboard
+                    </Button>
+                  ) : (
+                    <Button variant="ghost" className="justify-start text-sm h-10" onClick={() => handleNavigate("/register")}>
+                      <Sparkles className="mr-3 h-4 w-4" /> Generate
+                    </Button>
+                  )}
                   <Button variant="ghost" className="justify-start text-sm h-10" onClick={() => handleNavigate("/schedule")}>
                     <Calendar className="mr-3 h-4 w-4" /> Schedule
                   </Button>
@@ -164,7 +175,7 @@ export function Navbar() {
                   {session && (
                     <>
                       <div className="my-4 border-t border-border/50" />
-                      <Button variant="ghost" className="justify-start text-sm h-10" onClick={() => handleNavigate("/tickets")}>
+                      <Button variant="ghost" className="justify-start text-sm h-10" onClick={() => user?.id && handleNavigate(`/tickets/${user.id}`)}>
                         <Ticket className="mr-3 h-4 w-4" /> My Tickets
                       </Button>
                     </>

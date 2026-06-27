@@ -8,6 +8,7 @@ import { DatabaseModule } from './database/database.module';
 import { ConfigModule } from './config/config.module';
 import { AuthModule } from './auth/auth.module';
 import { RegisterModule } from './register/register.module';
+import { AdminModule } from './admin/admin.module';
 
 import { StorageModule } from './storage/storage.module';
 
@@ -17,6 +18,7 @@ import { StorageModule } from './storage/storage.module';
     DatabaseModule,
     AuthModule,
     RegisterModule,
+    AdminModule,
     StorageModule,
     ThrottlerModule.forRoot([{
       ttl: 60000,

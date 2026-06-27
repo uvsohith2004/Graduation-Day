@@ -38,6 +38,7 @@ interface RegistrationState {
   photoPreview: string;
   mobileNumber: string;
   branch: string;
+  studentName: string;
   willAttend: "Yes" | "No";
   guests: number;
   
@@ -52,19 +53,13 @@ const initialRegistrationState = {
   photoPreview: "",
   mobileNumber: "",
   branch: "",
+  studentName: "",
   willAttend: "Yes" as const,
   guests: 0,
 };
 
-export const useRegistrationStore = create<RegistrationState>()(
-  persist(
-    (set) => ({
-      ...initialRegistrationState,
-      setField: (field, value) => set((state) => ({ ...state, [field]: value })),
-      reset: () => set(initialRegistrationState),
-    }),
-    {
-      name: 'registration-storage',
-    }
-  )
-);
+export const useRegistrationStore = create<RegistrationState>()((set) => ({
+  ...initialRegistrationState,
+  setField: (field, value) => set((state) => ({ ...state, [field]: value })),
+  reset: () => set(initialRegistrationState),
+}));

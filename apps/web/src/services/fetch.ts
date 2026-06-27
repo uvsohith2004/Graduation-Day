@@ -47,3 +47,8 @@ export const checkEligibility = async (rollNo: string) => {
   const res = await axiosInstance.post("/register/check-eligibility", { rollNo })
   return res.data
 }
+
+export const getDashboardStats = async () => {
+  const res = await axiosInstance.get("/admin/dashboard-stats")
+  return res.data
+}
