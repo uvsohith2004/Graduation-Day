@@ -1,11 +1,10 @@
 import {
-  IsIn,
   IsNotEmpty,
   IsString,
   Matches,
   MinLength,
+  IsIn
 } from 'class-validator';
-import { branches } from '../constants';
 
 export class CreateAlumniDto {
   @IsString()
@@ -17,7 +16,7 @@ export class CreateAlumniDto {
   hallTicketNumber: string;
 
   @IsString()
-  @IsIn(Object.keys(branches))
+  @IsNotEmpty()
   branch: string;
 
   

@@ -4,7 +4,7 @@ import { Button } from "@repo/ui/components/button"
 import {
   ArrowRight,
   Sparkles,
-  Calendar,
+  MessageSquare,
   CalendarDays,
   MapPin,
 } from "lucide-react"
@@ -12,16 +12,17 @@ import { useNavigate } from "@tanstack/react-router"
 
 import homeData from "@/constants/home-data"
 import { authClient } from "@/lib/auth-client"
+import { useTicketStore } from "@/store"
 
 export function HeroSection() {
   const containerRef = useRef<HTMLElement>(null)
+  const { hasTicket } = useTicketStore()
 
   useEffect(() => {
     const ctx = gsap.context(() => {
       const hasPlayed = sessionStorage.getItem("heroAnimationPlayed")
 
       if (hasPlayed) {
-        // Set to final state immediately without animation
         gsap.set(".hero-badge, .hero-title, .hero-desc, .hero-cta", {
           y: 0,
           opacity: 1,
@@ -48,7 +49,6 @@ export function HeroSection() {
         },
       })
 
-      // Initial state
       gsap.set(".hero-badge, .hero-title, .hero-desc, .hero-cta", {
         y: 40,
         opacity: 0,
@@ -65,7 +65,6 @@ export function HeroSection() {
         opacity: 0,
       })
 
-      // Animate in
       tl.to(".ambient-glow", {
         scale: 1,
         opacity: 1,
@@ -125,18 +124,30 @@ export function HeroSection() {
   }, [])
 
   const navigate = useNavigate()
+  const { data: session } = authClient.useSession()
 
   const handleNavigate = (path: string) => {
     navigate({ to: path })
   }
 
+  const getMainButtonLabel = () => {
+    if (session?.user?.role === "admin") return "Dashboard"
+    if (hasTicket) return "Tickets"
+    return homeData.registerButton
+  }
+
+  const getMainButtonRoute = () => {
+    if (session?.user?.role === "admin") return "/dashboard"
+    if (hasTicket && session?.user?.id) return `/tickets/${session.user.id}`
+    return "/register"
+  }
+
   return (
     <section
       ref={containerRef}
-      className="relative flex min-h-screen  flex-col items-center justify-start overflow-hidden pt-32 pb-20"
+      className="relative flex min-h-screen  flex-col items-center justify-start overflow-hidden pt-5 pb-20"
     >
-      {/* Ambient Background Glow */}
-      <div className="ambient-glow pointer-events-none absolute top-[20%] left-1/2 -z-10 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/10 blur-[120px]" />
+      <div className="ambient-glow pointer-events-none absolute top-[20%] left-1/2 -z-10 h-150 w-150 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/10 blur-[120px]" />
 
       <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-col items-center px-4 text-center sm:px-6">
         <div className="hero-badge mb-8 inline-flex items-center rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-semibold tracking-wider text-primary uppercase backdrop-blur-md">
@@ -149,7 +160,7 @@ export function HeroSection() {
             {homeData.heroTitle}
           </span>
 
-          <span className="hero-title block bg-gradient-to-r from-primary via-primary/80 to-primary/40 bg-clip-text pb-2 text-transparent">
+          <span className="hero-title block bg-linear-to-r from-primary via-primary/80 to-primary/40 bg-clip-text pb-2 text-transparent">
             {homeData.heroHighlight}
           </span>
         </h1>
@@ -171,34 +182,23 @@ export function HeroSection() {
         </div>
 
         <div className="mb-20 flex w-full flex-col gap-4 sm:w-auto sm:flex-row">
-          {authClient.useSession().data?.user?.role === 'admin' ? (
-            <Button
-              size="lg"
-              onClick={() => handleNavigate("/dashboard")}
-              className="hero-cta h-14 rounded-2xl bg-primary px-8 text-base font-semibold text-primary-foreground hover:bg-primary/90"
-            >
-              Dashboard
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-          ) : (
-            <Button
-              size="lg"
-              onClick={() => handleNavigate("/register")}
-              className="hero-cta h-14 rounded-2xl bg-primary px-8 text-base font-semibold text-primary-foreground hover:bg-primary/90"
-            >
-              {homeData.registerButton}
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-          )}
+          <Button
+            size="lg"
+            onClick={() => handleNavigate(getMainButtonRoute())}
+            className="hero-cta h-14 rounded-2xl bg-primary px-8 text-base font-semibold text-primary-foreground hover:bg-primary/90"
+          >
+            {getMainButtonLabel()}
+            <ArrowRight className="ml-2 h-5 w-5" />
+          </Button>
 
           <Button
             size="lg"
             variant="outline"
-            onClick={() => handleNavigate("/schedule")}
+            onClick={() => handleNavigate("/contact")}
             className="hero-cta h-14 rounded-2xl border-border/60 bg-background/50 px-8 text-base font-semibold text-foreground backdrop-blur-sm hover:bg-secondary"
           >
-            <Calendar className="mr-2 h-5 w-5" />
-            {homeData.scheduleButton}
+            <MessageSquare className="mr-2 h-5 w-5" />
+            Contact Us
           </Button>
         </div>
 

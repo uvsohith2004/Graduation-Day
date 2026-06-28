@@ -9,6 +9,7 @@ import { ConfigModule } from './config/config.module';
 import { AuthModule } from './auth/auth.module';
 import { RegisterModule } from './register/register.module';
 import { AdminModule } from './admin/admin.module';
+import { ContactModule } from './contact/contact.module';
 
 import { StorageModule } from './storage/storage.module';
 
@@ -19,6 +20,7 @@ import { StorageModule } from './storage/storage.module';
     AuthModule,
     RegisterModule,
     AdminModule,
+    ContactModule,
     StorageModule,
     ThrottlerModule.forRoot([{
       ttl: 60000,

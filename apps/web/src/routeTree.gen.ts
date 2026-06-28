@@ -10,23 +10,28 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SigninRouteImport } from './routes/signin'
-import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CallbackRouteImport } from './routes/callback'
 import { Route as ScheduleRouteRouteImport } from './routes/schedule/route'
 import { Route as RegisterRouteRouteImport } from './routes/register/route'
+import { Route as DashboardRouteRouteImport } from './routes/dashboard/route'
+import { Route as ContactRouteRouteImport } from './routes/contact/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ScheduleIndexRouteImport } from './routes/schedule/index'
 import { Route as RegisterIndexRouteImport } from './routes/register/index'
+import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
+import { Route as ContactIndexRouteImport } from './routes/contact/index'
 import { Route as TicketsUserIdRouteImport } from './routes/tickets/$userId'
+import { Route as DashboardUsersRouteImport } from './routes/dashboard/users'
+import { Route as DashboardUnregisteredRouteImport } from './routes/dashboard/unregistered'
+import { Route as DashboardTemplateEditorRouteImport } from './routes/dashboard/template-editor'
+import { Route as DashboardRegisteredRouteImport } from './routes/dashboard/registered'
+import { Route as DashboardMessagesRouteImport } from './routes/dashboard/messages'
+import { Route as DashboardImportErrorsRouteImport } from './routes/dashboard/import-errors'
+import { Route as DashboardBranchesRouteImport } from './routes/dashboard/branches'
 
 const SigninRoute = SigninRouteImport.update({
   id: '/signin',
   path: '/signin',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DashboardRoute = DashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CallbackRoute = CallbackRouteImport.update({
@@ -44,6 +49,16 @@ const RegisterRouteRoute = RegisterRouteRouteImport.update({
   path: '/register',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardRouteRoute = DashboardRouteRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRouteRoute = ContactRouteRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -59,41 +74,114 @@ const RegisterIndexRoute = RegisterIndexRouteImport.update({
   path: '/',
   getParentRoute: () => RegisterRouteRoute,
 } as any)
+const DashboardIndexRoute = DashboardIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
+const ContactIndexRoute = ContactIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ContactRouteRoute,
+} as any)
 const TicketsUserIdRoute = TicketsUserIdRouteImport.update({
   id: '/tickets/$userId',
   path: '/tickets/$userId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardUsersRoute = DashboardUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
+const DashboardUnregisteredRoute = DashboardUnregisteredRouteImport.update({
+  id: '/unregistered',
+  path: '/unregistered',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
+const DashboardTemplateEditorRoute = DashboardTemplateEditorRouteImport.update({
+  id: '/template-editor',
+  path: '/template-editor',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
+const DashboardRegisteredRoute = DashboardRegisteredRouteImport.update({
+  id: '/registered',
+  path: '/registered',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
+const DashboardMessagesRoute = DashboardMessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
+const DashboardImportErrorsRoute = DashboardImportErrorsRouteImport.update({
+  id: '/import-errors',
+  path: '/import-errors',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
+const DashboardBranchesRoute = DashboardBranchesRouteImport.update({
+  id: '/branches',
+  path: '/branches',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/contact': typeof ContactRouteRouteWithChildren
+  '/dashboard': typeof DashboardRouteRouteWithChildren
   '/register': typeof RegisterRouteRouteWithChildren
   '/schedule': typeof ScheduleRouteRouteWithChildren
   '/callback': typeof CallbackRoute
-  '/dashboard': typeof DashboardRoute
   '/signin': typeof SigninRoute
+  '/dashboard/branches': typeof DashboardBranchesRoute
+  '/dashboard/import-errors': typeof DashboardImportErrorsRoute
+  '/dashboard/messages': typeof DashboardMessagesRoute
+  '/dashboard/registered': typeof DashboardRegisteredRoute
+  '/dashboard/template-editor': typeof DashboardTemplateEditorRoute
+  '/dashboard/unregistered': typeof DashboardUnregisteredRoute
+  '/dashboard/users': typeof DashboardUsersRoute
   '/tickets/$userId': typeof TicketsUserIdRoute
+  '/contact/': typeof ContactIndexRoute
+  '/dashboard/': typeof DashboardIndexRoute
   '/register/': typeof RegisterIndexRoute
   '/schedule/': typeof ScheduleIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/callback': typeof CallbackRoute
-  '/dashboard': typeof DashboardRoute
   '/signin': typeof SigninRoute
+  '/dashboard/branches': typeof DashboardBranchesRoute
+  '/dashboard/import-errors': typeof DashboardImportErrorsRoute
+  '/dashboard/messages': typeof DashboardMessagesRoute
+  '/dashboard/registered': typeof DashboardRegisteredRoute
+  '/dashboard/template-editor': typeof DashboardTemplateEditorRoute
+  '/dashboard/unregistered': typeof DashboardUnregisteredRoute
+  '/dashboard/users': typeof DashboardUsersRoute
   '/tickets/$userId': typeof TicketsUserIdRoute
+  '/contact': typeof ContactIndexRoute
+  '/dashboard': typeof DashboardIndexRoute
   '/register': typeof RegisterIndexRoute
   '/schedule': typeof ScheduleIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/contact': typeof ContactRouteRouteWithChildren
+  '/dashboard': typeof DashboardRouteRouteWithChildren
   '/register': typeof RegisterRouteRouteWithChildren
   '/schedule': typeof ScheduleRouteRouteWithChildren
   '/callback': typeof CallbackRoute
-  '/dashboard': typeof DashboardRoute
   '/signin': typeof SigninRoute
+  '/dashboard/branches': typeof DashboardBranchesRoute
+  '/dashboard/import-errors': typeof DashboardImportErrorsRoute
+  '/dashboard/messages': typeof DashboardMessagesRoute
+  '/dashboard/registered': typeof DashboardRegisteredRoute
+  '/dashboard/template-editor': typeof DashboardTemplateEditorRoute
+  '/dashboard/unregistered': typeof DashboardUnregisteredRoute
+  '/dashboard/users': typeof DashboardUsersRoute
   '/tickets/$userId': typeof TicketsUserIdRoute
+  '/contact/': typeof ContactIndexRoute
+  '/dashboard/': typeof DashboardIndexRoute
   '/register/': typeof RegisterIndexRoute
   '/schedule/': typeof ScheduleIndexRoute
 }
@@ -101,42 +189,71 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/contact'
+    | '/dashboard'
     | '/register'
     | '/schedule'
     | '/callback'
-    | '/dashboard'
     | '/signin'
+    | '/dashboard/branches'
+    | '/dashboard/import-errors'
+    | '/dashboard/messages'
+    | '/dashboard/registered'
+    | '/dashboard/template-editor'
+    | '/dashboard/unregistered'
+    | '/dashboard/users'
     | '/tickets/$userId'
+    | '/contact/'
+    | '/dashboard/'
     | '/register/'
     | '/schedule/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/callback'
-    | '/dashboard'
     | '/signin'
+    | '/dashboard/branches'
+    | '/dashboard/import-errors'
+    | '/dashboard/messages'
+    | '/dashboard/registered'
+    | '/dashboard/template-editor'
+    | '/dashboard/unregistered'
+    | '/dashboard/users'
     | '/tickets/$userId'
+    | '/contact'
+    | '/dashboard'
     | '/register'
     | '/schedule'
   id:
     | '__root__'
     | '/'
+    | '/contact'
+    | '/dashboard'
     | '/register'
     | '/schedule'
     | '/callback'
-    | '/dashboard'
     | '/signin'
+    | '/dashboard/branches'
+    | '/dashboard/import-errors'
+    | '/dashboard/messages'
+    | '/dashboard/registered'
+    | '/dashboard/template-editor'
+    | '/dashboard/unregistered'
+    | '/dashboard/users'
     | '/tickets/$userId'
+    | '/contact/'
+    | '/dashboard/'
     | '/register/'
     | '/schedule/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ContactRouteRoute: typeof ContactRouteRouteWithChildren
+  DashboardRouteRoute: typeof DashboardRouteRouteWithChildren
   RegisterRouteRoute: typeof RegisterRouteRouteWithChildren
   ScheduleRouteRoute: typeof ScheduleRouteRouteWithChildren
   CallbackRoute: typeof CallbackRoute
-  DashboardRoute: typeof DashboardRoute
   SigninRoute: typeof SigninRoute
   TicketsUserIdRoute: typeof TicketsUserIdRoute
 }
@@ -148,13 +265,6 @@ declare module '@tanstack/react-router' {
       path: '/signin'
       fullPath: '/signin'
       preLoaderRoute: typeof SigninRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/callback': {
@@ -178,6 +288,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RegisterRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -199,6 +323,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RegisterIndexRouteImport
       parentRoute: typeof RegisterRouteRoute
     }
+    '/dashboard/': {
+      id: '/dashboard/'
+      path: '/'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof DashboardIndexRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/contact/': {
+      id: '/contact/'
+      path: '/'
+      fullPath: '/contact/'
+      preLoaderRoute: typeof ContactIndexRouteImport
+      parentRoute: typeof ContactRouteRoute
+    }
     '/tickets/$userId': {
       id: '/tickets/$userId'
       path: '/tickets/$userId'
@@ -206,8 +344,95 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TicketsUserIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard/users': {
+      id: '/dashboard/users'
+      path: '/users'
+      fullPath: '/dashboard/users'
+      preLoaderRoute: typeof DashboardUsersRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/dashboard/unregistered': {
+      id: '/dashboard/unregistered'
+      path: '/unregistered'
+      fullPath: '/dashboard/unregistered'
+      preLoaderRoute: typeof DashboardUnregisteredRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/dashboard/template-editor': {
+      id: '/dashboard/template-editor'
+      path: '/template-editor'
+      fullPath: '/dashboard/template-editor'
+      preLoaderRoute: typeof DashboardTemplateEditorRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/dashboard/registered': {
+      id: '/dashboard/registered'
+      path: '/registered'
+      fullPath: '/dashboard/registered'
+      preLoaderRoute: typeof DashboardRegisteredRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/dashboard/messages': {
+      id: '/dashboard/messages'
+      path: '/messages'
+      fullPath: '/dashboard/messages'
+      preLoaderRoute: typeof DashboardMessagesRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/dashboard/import-errors': {
+      id: '/dashboard/import-errors'
+      path: '/import-errors'
+      fullPath: '/dashboard/import-errors'
+      preLoaderRoute: typeof DashboardImportErrorsRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/dashboard/branches': {
+      id: '/dashboard/branches'
+      path: '/branches'
+      fullPath: '/dashboard/branches'
+      preLoaderRoute: typeof DashboardBranchesRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
   }
 }
+
+interface ContactRouteRouteChildren {
+  ContactIndexRoute: typeof ContactIndexRoute
+}
+
+const ContactRouteRouteChildren: ContactRouteRouteChildren = {
+  ContactIndexRoute: ContactIndexRoute,
+}
+
+const ContactRouteRouteWithChildren = ContactRouteRoute._addFileChildren(
+  ContactRouteRouteChildren,
+)
+
+interface DashboardRouteRouteChildren {
+  DashboardBranchesRoute: typeof DashboardBranchesRoute
+  DashboardImportErrorsRoute: typeof DashboardImportErrorsRoute
+  DashboardMessagesRoute: typeof DashboardMessagesRoute
+  DashboardRegisteredRoute: typeof DashboardRegisteredRoute
+  DashboardTemplateEditorRoute: typeof DashboardTemplateEditorRoute
+  DashboardUnregisteredRoute: typeof DashboardUnregisteredRoute
+  DashboardUsersRoute: typeof DashboardUsersRoute
+  DashboardIndexRoute: typeof DashboardIndexRoute
+}
+
+const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
+  DashboardBranchesRoute: DashboardBranchesRoute,
+  DashboardImportErrorsRoute: DashboardImportErrorsRoute,
+  DashboardMessagesRoute: DashboardMessagesRoute,
+  DashboardRegisteredRoute: DashboardRegisteredRoute,
+  DashboardTemplateEditorRoute: DashboardTemplateEditorRoute,
+  DashboardUnregisteredRoute: DashboardUnregisteredRoute,
+  DashboardUsersRoute: DashboardUsersRoute,
+  DashboardIndexRoute: DashboardIndexRoute,
+}
+
+const DashboardRouteRouteWithChildren = DashboardRouteRoute._addFileChildren(
+  DashboardRouteRouteChildren,
+)
 
 interface RegisterRouteRouteChildren {
   RegisterIndexRoute: typeof RegisterIndexRoute
@@ -235,10 +460,11 @@ const ScheduleRouteRouteWithChildren = ScheduleRouteRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ContactRouteRoute: ContactRouteRouteWithChildren,
+  DashboardRouteRoute: DashboardRouteRouteWithChildren,
   RegisterRouteRoute: RegisterRouteRouteWithChildren,
   ScheduleRouteRoute: ScheduleRouteRouteWithChildren,
   CallbackRoute: CallbackRoute,
-  DashboardRoute: DashboardRoute,
   SigninRoute: SigninRoute,
   TicketsUserIdRoute: TicketsUserIdRoute,
 }

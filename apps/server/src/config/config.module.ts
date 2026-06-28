@@ -10,9 +10,6 @@ import * as Joi from 'joi';
       validationSchema: Joi.object({
         GMAIL_USER: Joi.string().optional().allow(''),
         GMAIL_APP_PASSWORD: Joi.string().optional().allow(''),
-        SPREADSHEET_ID: Joi.string().optional().allow(''),
-        GOOGLE_CRED_BASE64: Joi.string().optional().allow(''),
-        RECIPIENTS: Joi.string().optional().allow(''),
         AUTH_SECRET: Joi.string().required(),
         BASE_URL: Joi.string().required(),
         WEB_URL: Joi.string().required(),

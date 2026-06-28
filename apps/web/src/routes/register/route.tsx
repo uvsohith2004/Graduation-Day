@@ -88,10 +88,10 @@ function RegisterPage() {
     (registrationData && session?.user?.id)
   ) {
     return (
-      <div className="flex min-h-screen flex-col bg-background pt-10">
+      <div className="flex min-h-screen flex-col bg-background ">
         <div className="flex flex-1 flex-col md:items-center md:justify-center md:px-4 md:py-12">
           <div className="w-full md:max-w-md md:rounded-3xl md:border md:border-border md:bg-card md:shadow-sm">
-            <div className="flex h-[300px] items-center justify-center p-10">
+            <div className="flex h-75 items-center justify-center p-10">
               <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
             </div>
           </div>

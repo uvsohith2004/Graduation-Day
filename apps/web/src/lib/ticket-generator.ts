@@ -1,4 +1,16 @@
-export const generateTicketImage = (ticket: any): Promise<string> => {
+import { getTemplate } from "@/services/fetch"
+
+const DEFAULT_CONFIG = {
+  name: { x: 0.43, y: 0.33, w: 0.42, h: 0.05, fontSize: 0.017 },
+  hallTicket: { x: 0.43, y: 0.387, w: 0.3, h: 0.05, fontSize: 0.017 },
+  branch: { x: 0.43, y: 0.44, w: 0.3, h: 0.05, fontSize: 0.017 },
+  date: { x: 0.43, y: 0.494, w: 0.3, h: 0.05, fontSize: 0.017 },
+  time: { x: 0.43, y: 0.545, w: 0.3, h: 0.05, fontSize: 0.017 },
+  guests: { x: 0.43, y: 0.6, w: 0.3, h: 0.05, fontSize: 0.017 },
+  photo: { x: 0.824, y: 0.236, w: 0.15, h: 0.16, radius: 0.018 }
+}
+
+export const generateTicketImage = async (ticket: any): Promise<string> => {
   const formatTicketDate = (dateStr: string) => {
     if (!dateStr) return "TBD";
     const parts = dateStr.split('-');
@@ -9,13 +21,28 @@ export const generateTicketImage = (ticket: any): Promise<string> => {
     }
     return dateStr;
   };
+
+  let templateData = null;
+  try {
+    templateData = await getTemplate();
+  } catch(e) {
+    console.error("Failed to fetch template, using defaults", e);
+  }
+
+  const bgSrc = templateData?.bgImageUrl;
+  if (!bgSrc) {
+    return Promise.reject(new Error("No template background configured. Please upload an image in the Template Editor."));
+  }
+  const config = templateData?.config || DEFAULT_CONFIG;
+
   return new Promise((resolve, reject) => {
     const canvas = document.createElement("canvas")
     const ctx = canvas.getContext("2d")
     if (!ctx) return reject("No canvas context")
 
     const bgImage = new Image()
-    bgImage.src = "/template.png"
+    bgImage.crossOrigin = "anonymous"
+    bgImage.src = bgSrc
 
     bgImage.onload = () => {
       canvas.width = bgImage.width
@@ -25,153 +52,121 @@ export const generateTicketImage = (ticket: any): Promise<string> => {
       const w = canvas.width
       const h = canvas.height
 
-      const offsets = {
-        textX: 0.431,
-        fontSize: 0.017,
-        nameY: 0.33,
-
-        nameMaxWidth: 0.42,
-        nameMinFontSize: 10,
-        nameLineSpacing: 0.020,
-        nameYAdjust: 0.010,
-
-        hallTicketY: 0.387,
-        branchY: 0.44,
-        dateY: 0.494,
-        timeY: 0.545,
-        guestsY: 0.6,
-        photoX: 0.824,
-        photoY: 0.236,
-        photoW: 0.15,
-        photoH: 0.16,
-        photoRadius: 0.018,
-      }
-
-
-      const renderName = (name: string) => {
-        const maxW = w * offsets.nameMaxWidth
-        const tX = w * offsets.textX
-        const defaultSize = Math.floor(h * offsets.fontSize)
-        const minSize = offsets.nameMinFontSize
+      const renderText = (text: string, fieldConfig: any) => {
+        if (!fieldConfig || fieldConfig.isEnabled === false) return;
+        
+        const maxW = w * fieldConfig.w;
+        const defaultFontSize = Math.floor(h * (fieldConfig.fontSize || 0.017));
+        const minFontSize = Math.floor(h * (fieldConfig.minFontSize || 0.010));
+        const tX = w * fieldConfig.x;
+        const fontFam = fieldConfig.fontFamily || "sans-serif";
+        const align = fieldConfig.textAlign || "left";
+        
+        ctx.fillStyle = fieldConfig.color || "#000000";
+        ctx.textAlign = align as CanvasTextAlign;
+        ctx.textBaseline = "middle";
 
         const setFont = (size: number) => {
-          ctx.font = `bold ${size}px sans-serif`
+          ctx.font = `bold ${size}px ${fontFam}`;
         }
-
-        // Helper: split name into two roughly equal halves at a word boundary
-        const splitIntoTwoLines = (text: string): [string, string] => {
-          const words = text.split(" ")
-          if (words.length === 1) return [text, ""]
-          // Find split point closest to middle character count
-          let best = 1
-          let bestDiff = Infinity
-          const total = text.length
-          let acc = 0
-          for (let i = 0; i < words.length - 1; i++) {
-            acc += words[i].length + 1
-            const diff = Math.abs(acc - total / 2)
-            if (diff < bestDiff) {
-              bestDiff = diff
-              best = i + 1
-            }
-          }
-          return [words.slice(0, best).join(" "), words.slice(best).join(" ")]
+        
+        const calcDrawX = () => {
+          if (align === "center") return tX + (maxW / 2);
+          if (align === "right") return tX + maxW;
+          return tX;
         }
+        
+        const drawX = calcDrawX();
 
-        // Helper: truncate text with ellipsis to fit maxW
-        const truncateToFit = (text: string, size: number): string => {
-          setFont(size)
-          if (ctx.measureText(text).width <= maxW) return text
-          let t = text
-          while (t.length > 1 && ctx.measureText(t + "…").width > maxW) {
-            t = t.slice(0, -1)
-          }
-          return t + "…"
+        if (fieldConfig.autoWrap) {
+           setFont(defaultFontSize);
+           if (ctx.measureText(text).width <= maxW) {
+             const tY = h * fieldConfig.y + (h * fieldConfig.h) / 2;
+             ctx.fillText(text, drawX, tY);
+             return;
+           }
+           
+           const words = text.split(" ");
+           if (words.length > 1) {
+             let best = 1;
+             let bestDiff = Infinity;
+             const total = text.length;
+             let acc = 0;
+             for (let i = 0; i < words.length - 1; i++) {
+               acc += words[i].length + 1;
+               const diff = Math.abs(acc - total / 2);
+               if (diff < bestDiff) {
+                 bestDiff = diff;
+                 best = i + 1;
+               }
+             }
+             const line1 = words.slice(0, best).join(" ");
+             const line2 = words.slice(best).join(" ");
+             
+             if (ctx.measureText(line1).width <= maxW && ctx.measureText(line2).width <= maxW) {
+                const lineSpacing = defaultFontSize * 1.2;
+                const startY = (h * fieldConfig.y + (h * fieldConfig.h) / 2) - (lineSpacing / 2);
+                ctx.fillText(line1, drawX, startY);
+                ctx.fillText(line2, drawX, startY + lineSpacing);
+                return;
+             }
+             
+             setFont(minFontSize);
+             if (ctx.measureText(line1).width <= maxW && ctx.measureText(line2).width <= maxW) {
+                const lineSpacing = minFontSize * 1.2;
+                const startY = (h * fieldConfig.y + (h * fieldConfig.h) / 2) - (lineSpacing / 2);
+                ctx.fillText(line1, drawX, startY);
+                ctx.fillText(line2, drawX, startY + lineSpacing);
+                return;
+             }
+             
+             const truncateToFit = (str: string) => {
+               let t = str;
+               while (t.length > 1 && ctx.measureText(t + "…").width > maxW) t = t.slice(0, -1);
+               return t + "…";
+             }
+             const lineSpacing = minFontSize * 1.2;
+             const startY = (h * fieldConfig.y + (h * fieldConfig.h) / 2) - (lineSpacing / 2);
+             ctx.fillText(truncateToFit(line1), drawX, startY);
+             ctx.fillText(truncateToFit(line2), drawX, startY + lineSpacing);
+             return;
+           }
         }
-
-        ctx.fillStyle = "#000000"
-        ctx.textAlign = "left"
-        ctx.textBaseline = "middle"
-
-        // --- STEP 1: Try single line at default font size ---
-        setFont(defaultSize)
-        if (ctx.measureText(name).width <= maxW) {
-          ctx.fillText(name, tX, h * offsets.nameY)
-          return
-        }
-
-        // --- STEP 2: Try two lines at default font size ---
-        const [line1, line2] = splitIntoTwoLines(name)
-        setFont(defaultSize)
-        const l1fits = ctx.measureText(line1).width <= maxW
-        const l2fits = line2 === "" || ctx.measureText(line2).width <= maxW
-
-        if (l1fits && l2fits) {
-          const baseY = h * (offsets.nameY - offsets.nameYAdjust)
-          ctx.fillText(line1, tX, baseY)
-          if (line2)
-            ctx.fillText(line2, tX, baseY + h * offsets.nameLineSpacing)
-          return
-        }
-
-        // --- STEP 3: Shrink font until both lines fit (down to minSize) ---
-        for (let size = defaultSize - 1; size >= minSize; size--) {
-          setFont(size)
-          const fits1 = ctx.measureText(line1).width <= maxW
-          const fits2 = line2 === "" || ctx.measureText(line2).width <= maxW
-          if (fits1 && fits2) {
-            const baseY = h * (offsets.nameY - offsets.nameYAdjust)
-            ctx.fillText(line1, tX, baseY)
-            if (line2)
-              ctx.fillText(line2, tX, baseY + h * offsets.nameLineSpacing)
-            return
-          }
-        }
-
-        // --- STEP 4: Give up — clip both lines with ellipsis at minSize ---
-        const clipped1 = truncateToFit(line1, minSize)
-        const clipped2 = line2 ? truncateToFit(line2, minSize) : ""
-        setFont(minSize)
-        const baseY = h * (offsets.nameY - offsets.nameYAdjust)
-        ctx.fillText(clipped1, tX, baseY)
-        if (clipped2)
-          ctx.fillText(clipped2, tX, baseY + h * offsets.nameLineSpacing)
+        
+        setFont(defaultFontSize);
+        if (ctx.measureText(text).width > maxW) setFont(minFontSize);
+        let t = text;
+        while (t.length > 1 && ctx.measureText(t + "…").width > maxW) t = t.slice(0, -1);
+        if (t.length < text.length) t += "…";
+        const tY = h * fieldConfig.y + (h * fieldConfig.h) / 2;
+        ctx.fillText(t, drawX, tY);
       }
-      // ────────────────────────────────────────────────────────────────────
 
-      const defaultFontSize = Math.floor(h * offsets.fontSize)
-      const tX = w * offsets.textX
-
-      // Draw name with smart wrapping
-      renderName(ticket.student_name.toUpperCase())
-
-      // Draw remaining fields
-      ctx.font = `bold ${defaultFontSize}px sans-serif`
-      ctx.fillStyle = "#000000"
-      ctx.textAlign = "left"
-      ctx.textBaseline = "middle"
-
-      ctx.fillText(
-        ticket.hall_ticket_number.toUpperCase(),
-        tX,
-        h * offsets.hallTicketY
-      )
-      ctx.fillText(ticket.branch.toUpperCase(), tX, h * offsets.branchY)
-      ctx.fillText(formatTicketDate(ticket.event_date), tX, h * offsets.dateY)
-      ctx.fillText(ticket.event_time || "TBD", tX, h * offsets.timeY)
-      ctx.fillText(ticket.guest_count.toString(), tX, h * offsets.guestsY)
+      // Draw all text fields
+      renderText(ticket.student_name.toUpperCase(), config.name)
+      renderText(ticket.hall_ticket_number.toUpperCase(), config.hallTicket)
+      renderText(ticket.branch.toUpperCase(), config.branch)
+      renderText(formatTicketDate(ticket.event_date), config.date)
+      renderText(ticket.event_time || "TBD", config.time)
+      renderText(ticket.guest_count.toString(), config.guests)
 
       // Load Profile Photo
+      const pConf = config.photo;
+      if (!pConf || pConf.isEnabled === false) {
+        resolve(canvas.toDataURL("image/png", 1.0));
+        return;
+      }
+
       const photo = new Image()
       photo.crossOrigin = "anonymous"
       photo.src = ticket.photo
 
       photo.onload = () => {
-        const pX = w * offsets.photoX
-        const pY = h * offsets.photoY
-        const pW = w * offsets.photoW
-        const pH = h * offsets.photoH
-        const radius = Math.floor(w * offsets.photoRadius)
+        const pX = w * pConf.x
+        const pY = h * pConf.y
+        const pW = w * pConf.w
+        const pH = h * pConf.h
+        const radius = Math.floor(w * (pConf.radius || 0.018))
 
         const drawRoundedRect = (
           x: number,
@@ -200,7 +195,7 @@ export const generateTicketImage = (ticket: any): Promise<string> => {
         ctx.beginPath()
         drawRoundedRect(pX, pY, pW, pH, radius)
         ctx.stroke()
-
+        
         resolve(canvas.toDataURL("image/png", 1.0))
       }
 
@@ -210,7 +205,7 @@ export const generateTicketImage = (ticket: any): Promise<string> => {
     }
 
     bgImage.onerror = () => {
-      reject(new Error("Failed to load /template.png from public folder."))
+      reject(new Error("Failed to load ticket background image."))
     }
   })
 }

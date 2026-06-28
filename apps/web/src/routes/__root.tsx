@@ -2,6 +2,7 @@ import * as React from "react"
 import { Outlet, createRootRoute } from "@tanstack/react-router"
 import { Navbar } from "@/components/navbar"
 import { Toaster } from "@repo/ui/components/sonner"
+import { TooltipProvider } from "@repo/ui/components/tooltip"
 
 export const Route = createRootRoute({
   component: RootComponent,
@@ -9,10 +10,10 @@ export const Route = createRootRoute({
 
 function RootComponent() {
   return (
-    <React.Fragment>
+    <TooltipProvider>
       <Navbar />
       <Outlet />
       <Toaster />
-    </React.Fragment>
+    </TooltipProvider>
   )
 }

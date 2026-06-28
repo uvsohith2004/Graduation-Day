@@ -1,9 +1,8 @@
 import { Injectable, Inject, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectDB } from '../database/inject-db.decorator';
-import { alumni, eligibility } from '../database/schemas';
+import { alumni, eligibility, branchesTable } from '../database/schemas';
 import { eq } from 'drizzle-orm';
 import { CreateAlumniDto } from './dto/create-alumni.dto';
-import { branches } from './constants';
 
 @Injectable()
 export class RegisterService {
@@ -31,7 +30,9 @@ export class RegisterService {
         );
       }
 
-      const eventDetails = branches[payload.branch as keyof typeof branches];
+      const eventDetails = await this.db.query.branchesTable.findFirst({
+        where: eq(branchesTable.name, payload.branch),
+      });
       
       if (!eventDetails) {
         throw new HttpException(

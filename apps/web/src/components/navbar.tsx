@@ -1,31 +1,33 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "@tanstack/react-router";
-import { useAuthStore } from "@/store";
-import { 
-  Ticket, LogOut, User, MenuIcon, Home, Calendar, Sparkles
-} from "lucide-react";
+import { useState, useEffect } from "react"
+import { useNavigate } from "@tanstack/react-router"
+import { useAuthStore, useTicketStore } from "@/store"
+import {
+  Ticket, LogOut, User, MenuIcon, Home, MessageSquare, Sparkles
+} from "lucide-react"
 
-import { authClient } from "@/lib/auth-client"; 
+import { authClient } from "@/lib/auth-client"
 
-import { Button } from "@repo/ui/components/button";
-import { Sheet, SheetContent, SheetFooter } from "@repo/ui/components/sheet";
-import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/components/avatar";
+import { Button } from "@repo/ui/components/button"
+import { Sheet, SheetContent, SheetFooter } from "@repo/ui/components/sheet"
+import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/components/avatar"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@repo/ui/components/dropdown-menu";
-import { cn } from "@repo/ui/lib/utils"; 
-import { ThemeToggle } from "./theme-toggle";
-import { Logo } from "./logo";
+} from "@repo/ui/components/dropdown-menu"
+import { cn } from "@repo/ui/lib/utils"
+import { ThemeToggle } from "./theme-toggle"
+import { Logo } from "./logo"
+
 export function Navbar() {
-  const navigate = useNavigate();
-  const [open, setOpen] = useState(false);
-  const { data: session } = authClient.useSession();
-  
-  const { user, isLoggedIn, setUser, logout } = useAuthStore();
+  const navigate = useNavigate()
+  const [open, setOpen] = useState(false)
+  const { data: session } = authClient.useSession()
+
+  const { user, isLoggedIn, setUser, logout } = useAuthStore()
+  const { hasTicket } = useTicketStore()
 
   useEffect(() => {
     if (session?.user) {
@@ -34,35 +36,44 @@ export function Navbar() {
         name: session.user.name,
         email: session.user.email,
         image: session.user.image,
-      });
+      })
     } else if (session === null) {
-
-      setUser(null);
+      setUser(null)
     }
-  }, [session, setUser]);
+  }, [session, setUser])
 
   const handleNavigate = (path: string) => {
-    navigate({ to: path });
-    setOpen(false);
-  };
+    navigate({ to: path })
+    setOpen(false)
+  }
 
   const handleLogout = async () => {
-    await authClient.signOut();
-    logout();
-    navigate({ to: "/" });
-  };
+    await authClient.signOut()
+    logout()
+    navigate({ to: "/" })
+  }
+
+  const getGenerateLabel = () => {
+    if (hasTicket) return "Tickets"
+    return "Generate"
+  }
+
+  const getGenerateRoute = () => {
+    if (hasTicket && user?.id) return `/tickets/${user.id}`
+    return "/register"
+  }
 
   return (
     <header
       className={cn(
-        "fixed top-4 left-0 right-0 z-50",
+        "sticky top-4 z-50 mt-4 ",
         "mx-auto w-full max-w-5xl rounded-full border border-border/60",
-        "bg-background/80 supports-[backdrop-filter]:bg-background/60 backdrop-blur-md"
+        "bg-background/80 supports-backdrop-filter:bg-background/60 backdrop-blur-md"
       )}
     >
       <nav className="mx-auto flex h-14 items-center justify-between px-4">
-        
-        <div 
+
+        <div
           className="flex cursor-pointer items-center gap-2 rounded-full px-3 py-1.5 transition-colors hover:bg-accent/50"
           onClick={() => handleNavigate("/")}
         >
@@ -70,7 +81,6 @@ export function Navbar() {
           <p className="font-bold text-sm tracking-wide">VITS ALUMNI HUB</p>
         </div>
 
-       
         <div className="hidden items-center gap-2 md:flex">
           <Button variant="ghost" size="sm" onClick={() => handleNavigate("/")} className="rounded-full h-8 px-4 text-xs font-medium">
             Home
@@ -80,16 +90,15 @@ export function Navbar() {
               Dashboard
             </Button>
           ) : (
-            <Button variant="ghost" size="sm" onClick={() => handleNavigate("/register")} className="rounded-full h-8 px-4 text-xs font-medium">
-              Generate
+            <Button variant="ghost" size="sm" onClick={() => handleNavigate(getGenerateRoute())} className="rounded-full h-8 px-4 text-xs font-medium">
+              {getGenerateLabel()}
             </Button>
           )}
-          <Button variant="ghost" size="sm" onClick={() => handleNavigate("/schedule")} className="rounded-full h-8 px-4 text-xs font-medium">
-            Schedule
+          <Button variant="ghost" size="sm" onClick={() => handleNavigate("/contact")} className="rounded-full h-8 px-4 text-xs font-medium">
+            Contact
           </Button>
         </div>
 
-  
         <div className="flex items-center gap-3">
           <div className="hidden md:block">
             <ThemeToggle />
@@ -133,7 +142,6 @@ export function Navbar() {
             )}
           </div>
 
-          {/* MOBILE: Drawer/Sheet Trigger */}
           <Sheet open={open} onOpenChange={setOpen}>
             <span className="md:hidden">  <ThemeToggle /></span>
             <Button
@@ -145,16 +153,15 @@ export function Navbar() {
               <MenuIcon className="size-4" />
             </Button>
             <SheetContent
-              className="bg-background/95 supports-[backdrop-filter]:bg-background/80 border-r border-border/50 backdrop-blur-xl p-0 w-64"
+              className="bg-background/95 supports-backdrop-filter:bg-background/80 border-r border-border/50 backdrop-blur-xl p-0 w-64"
               showCloseButton={false}
               side="left"
             >
               <div className="flex flex-col h-full">
                 <div className="p-4 border-b border-border/50 flex justify-between items-center">
                   <p className="font-bold text-sm tracking-wide">VITS ALUMNI HUB</p>
-                
                 </div>
-                
+
                 <div className="flex-1 overflow-y-auto py-6 px-4 flex flex-col gap-2">
                   <Button variant="ghost" className="justify-start text-sm h-10" onClick={() => handleNavigate("/")}>
                     <Home className="mr-3 h-4 w-4" /> Home
@@ -164,12 +171,12 @@ export function Navbar() {
                       <Sparkles className="mr-3 h-4 w-4" /> Dashboard
                     </Button>
                   ) : (
-                    <Button variant="ghost" className="justify-start text-sm h-10" onClick={() => handleNavigate("/register")}>
-                      <Sparkles className="mr-3 h-4 w-4" /> Generate
+                    <Button variant="ghost" className="justify-start text-sm h-10" onClick={() => handleNavigate(getGenerateRoute())}>
+                      <Sparkles className="mr-3 h-4 w-4" /> {getGenerateLabel()}
                     </Button>
                   )}
-                  <Button variant="ghost" className="justify-start text-sm h-10" onClick={() => handleNavigate("/schedule")}>
-                    <Calendar className="mr-3 h-4 w-4" /> Schedule
+                  <Button variant="ghost" className="justify-start text-sm h-10" onClick={() => handleNavigate("/contact")}>
+                    <MessageSquare className="mr-3 h-4 w-4" /> Contact
                   </Button>
 
                   {session && (
@@ -200,7 +207,6 @@ export function Navbar() {
                     </div>
                   ) : (
                     <div className="flex flex-col gap-2 w-full">
-                  
                       <Button className="w-full rounded-full" onClick={() => handleNavigate("/signin")}>Sign In</Button>
                     </div>
                   )}
@@ -211,5 +217,5 @@ export function Navbar() {
         </div>
       </nav>
     </header>
-  );
+  )
 }
