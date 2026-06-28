@@ -14,13 +14,14 @@ import { AuthController } from './auth.controller';
         const { betterAuth } = await import('better-auth');
         const { drizzleAdapter } = await import('better-auth/adapters/drizzle');
 
+        const isProduction = process.env.NODE_ENV === 'production';
+        const backendUrl = process.env.BETTER_AUTH_URL || process.env.BASE_URL || 'http://localhost:3000';
+        const webUrl = process.env.WEB_URL || 'http://localhost:5173';
+
         return betterAuth({
-          baseURL:
-            process.env.BETTER_AUTH_URL ||
-            process.env.BASE_URL ||
-            'https://pbrvits-graduation-day.vercel.app',
+          baseURL: backendUrl,
           trustedOrigins: [
-            process.env.WEB_URL || 'http://localhost:5173',
+            webUrl,
             'https://pbrvits-graduation-day.vercel.app',
           ],
           database: drizzleAdapter(db, {
@@ -28,9 +29,15 @@ import { AuthController } from './auth.controller';
             schema: schema,
           }),
           advanced: {
+            // On Vercel serverless, we must use 'lax' to allow the state cookie
+            // to survive the redirect from Google back to the callback endpoint.
+            // 'none' requires the cookie to be set and read across different 
+            // origins, which Vercel's edge network can interfere with.
+            useSecureCookies: isProduction,
             defaultCookieAttributes: {
-              sameSite: 'none',
-              secure: true,
+              sameSite: 'lax',
+              secure: isProduction,
+              path: '/',
             },
           },
           socialProviders: {
@@ -47,3 +54,4 @@ import { AuthController } from './auth.controller';
   exports: ['BETTER_AUTH'],
 })
 export class AuthModule {}
+
