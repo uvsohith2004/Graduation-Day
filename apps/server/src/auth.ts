@@ -15,7 +15,16 @@ export const auth = betterAuth({
             clientId: process.env.GOOGLE_CLIENT_ID!,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
         },
-
+    },
+    trustedOrigins: [
+        "http://localhost:5173",
+        process.env.WEB_URL as string
+    ].filter(Boolean),
+    advanced: {
+        defaultCookieAttributes: {
+            sameSite: "none",
+            secure: true,
+        },
     },
     plugins: [
         admin()
