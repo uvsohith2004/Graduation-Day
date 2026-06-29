@@ -341,7 +341,7 @@ function DashboardUnregistered() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {(branchData as UnregisteredAlumni[]).map((user, idx) => (
+              {(branchData as UnregisteredAlumni[]).map((user) => (
                 <TableRow
                   key={user.id}
                   data-row

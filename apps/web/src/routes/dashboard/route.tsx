@@ -14,7 +14,6 @@ import {
   Shield,
   MessageSquare,
   Trash2,
-  GraduationCap,
   MoreHorizontal,
   X,
   LayoutTemplate,

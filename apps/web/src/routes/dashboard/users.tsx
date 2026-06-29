@@ -39,7 +39,7 @@ function DashboardUsers() {
   const [otpTargetUser, setOtpTargetUser] = useState<UserRecord | null>(null)
   const [otpValue, setOtpValue] = useState("")
   const [promotingId, setPromotingId] = useState<string | null>(null)
-  const [otpSent, setOtpSent] = useState(false)
+
 
   const tableRef = useRef<HTMLDivElement>(null)
 
@@ -58,10 +58,8 @@ function DashboardUsers() {
     setPromotingId(user.id)
     setOtpTargetUser(user)
     setOtpValue("")
-    setOtpSent(false)
     try {
       await sendOtpMutation.mutateAsync(user.id)
-      setOtpSent(true)
       setOtpSheetOpen(true)
     } finally {
       setPromotingId(null)

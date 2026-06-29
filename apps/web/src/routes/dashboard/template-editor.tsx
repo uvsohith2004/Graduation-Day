@@ -6,7 +6,7 @@ import { Button } from '@repo/ui/components/button'
 import { Input } from '@repo/ui/components/input'
 import { Label } from '@repo/ui/components/label'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/components/dialog'
-import { Loader2, Save, ImagePlus, Beaker, Eye, EyeOff, Lock, Unlock, WrapText, AlignLeft, AlignCenter, AlignRight, Type, Layers, Image as ImageIcon, Move } from 'lucide-react'
+import { Loader2, Save, ImagePlus, Beaker, Eye, EyeOff, Lock, Unlock, WrapText, AlignLeft, AlignCenter, AlignRight, Type, Image as ImageIcon } from 'lucide-react'
 import { toast } from 'sonner'
 import { generateTicketImage } from '@/lib/ticket-generator'
 
