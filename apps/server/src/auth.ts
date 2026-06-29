@@ -21,6 +21,8 @@ export const auth = betterAuth({
     },
     trustedOrigins: [
         "http://localhost:5173",
+        "https://graduation-day-web.vercel.app",
+        "https://pbrvits-graduation-day.vercel.app",
         process.env.WEB_URL as string
     ].filter(Boolean),
     advanced: {

@@ -243,7 +243,7 @@ function MobileBottomBar() {
 
       {/* Tab bar */}
       <nav
-        className="fixed right-0 bottom-0 left-0 z-40 flex h-16 items-stretch border-t border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 md:hidden"
+        className="fixed right-0 bottom-0 left-0 z-40 flex h-16 items-stretch border-t border-border bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/80 md:hidden"
         aria-label="Mobile navigation"
       >
         {mobileNavItems.map((item) => {

@@ -103,7 +103,7 @@ function DashboardMessages() {
       <div className="flex flex-1 min-h-0 overflow-hidden">
         
         {/* LEFT PANE: Master List */}
-        <div className={`w-full md:w-[350px] lg:w-[420px] flex-none flex-col border-r border-border bg-card relative h-full overflow-hidden ${selectedId ? 'hidden md:flex' : 'flex'}`}>
+        <div className={`w-full md:w-87.5 lg:w-105 flex-none flex-col border-r border-border bg-card relative h-full overflow-hidden ${selectedId ? 'hidden md:flex' : 'flex'}`}>
           
           {/* Search/Filter Bar */}
           <div className="p-4 border-b border-border bg-background/50 z-10 shrink-0">
@@ -174,7 +174,7 @@ function DashboardMessages() {
             <div className="flex flex-col h-full overflow-hidden relative" ref={detailRef}>
               
               {/* FIXED TOP: Thread Header */}
-              <div className="flex-none shrink-0 p-4 md:p-6 border-b border-border/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-10 shadow-sm">
+              <div className="flex-none shrink-0 p-4 md:p-6 border-b border-border/50 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 z-10 shadow-sm">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center">
                     <Button 
@@ -214,7 +214,7 @@ function DashboardMessages() {
                   
                   {/* 1. The Original Message */}
                   <div className="p-4 md:p-8 pb-4">
-                    <p className="text-sm leading-relaxed text-foreground/90 whitespace-pre-wrap break-words max-w-3xl">
+                    <p className="text-sm leading-relaxed text-foreground/90 whitespace-pre-wrap warp-break-word max-w-3xl">
                       {selectedMessage.message}
                     </p>
                   </div>
@@ -236,12 +236,12 @@ function DashboardMessages() {
                         value={replyBody}
                         onChange={(e) => setReplyBody(e.target.value)}
                         placeholder={`Reply to ${selectedMessage.name}...`}
-                        className="min-h-[120px] resize-none border-0 bg-transparent shadow-none text-sm p-0 focus-visible:ring-0"
+                        className="min-h-30 resize-none border-0 bg-transparent shadow-none text-sm p-0 focus-visible:ring-0"
                       />
                     </div>
 
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between px-3 pb-3 pt-1 gap-3 sm:gap-0">
-                      <p className="text-[10px] text-muted-foreground flex items-center hidden sm:flex">
+                      <p className="text-[10px] text-muted-foreground items-center hidden sm:flex">
                         <CornerDownLeft className="h-3 w-3 mr-1" /> Use a professional tone.
                       </p>
                       <Button 

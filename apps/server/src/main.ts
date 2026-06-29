@@ -28,6 +28,24 @@ async function bootstrap() {
     const authHandler = toNodeHandler(betterAuthInstance);
 
     const expressApp = app.getHttpAdapter().getInstance();
+    
+    expressApp.use('/api/auth/*', (req: any, res: any, next: any) => {
+      const origin = req.headers.origin;
+      const allowedOrigins = [webOrigin, 'https://graduation-day-web.vercel.app', 'https://pbrvits-graduation-day.vercel.app'];
+      if (origin && allowedOrigins.includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+      }
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+      res.setHeader('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept, Authorization');
+      
+      if (req.method === 'OPTIONS') {
+        res.status(200).end();
+        return;
+      }
+      next();
+    });
+
     expressApp.all('/api/auth/*', (req: any, res: any) => {
       return authHandler(req, res);
     });

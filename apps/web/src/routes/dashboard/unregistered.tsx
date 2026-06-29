@@ -281,7 +281,7 @@ function DashboardUnregistered() {
             >
               <span>{branch}</span>
               <span
-                className={`min-w-[20px] rounded-sm px-1.5 py-0.5 text-center text-[10px] font-bold tabular-nums transition-colors ${
+                className={`min-w-5 rounded-sm px-1.5 py-0.5 text-center text-[10px] font-bold tabular-nums transition-colors ${
                   isSelected
                     ? "bg-primary/20 text-primary"
                     : "bg-muted text-muted-foreground group-hover:bg-muted/80"

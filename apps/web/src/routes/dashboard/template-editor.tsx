@@ -317,7 +317,7 @@ function TemplateEditor() {
 
       <div className="flex flex-col gap-6">
         {/* Top Toolbar - Full Width */}
-        <div className="w-full bg-card p-2 px-4 rounded-xl border border-border flex items-center min-h-[60px] overflow-x-auto">
+        <div className="w-full bg-card p-2 px-4 rounded-xl border border-border flex items-center min-h-15 overflow-x-auto">
             {activeField ? (
               <div className="flex flex-nowrap items-center gap-3">
                 <span className="flex items-center gap-2 mr-2 px-3 py-1.5 bg-muted rounded-md text-sm font-medium whitespace-nowrap">
@@ -421,7 +421,7 @@ function TemplateEditor() {
                       {FIELD_LABELS[key as keyof typeof FIELD_LABELS]} {field.isLocked && <Lock className="inline w-3 h-3 ml-1" />}
                     </span>
 
-                    {/* Resizers (only show when active and not locked) */}
+               
                     {isActive && !field.isLocked && (
                       <>
                         <div className="absolute top-0 bottom-0 left-0 w-3 cursor-ew-resize hover:bg-primary/50" onPointerDown={(e) => handlePointerDown(e, key, 'w')} />
@@ -429,10 +429,10 @@ function TemplateEditor() {
                         <div className="absolute left-0 right-0 top-0 h-3 cursor-ns-resize hover:bg-primary/50" onPointerDown={(e) => handlePointerDown(e, key, 'n')} />
                         <div className="absolute left-0 right-0 bottom-0 h-3 cursor-ns-resize hover:bg-primary/50" onPointerDown={(e) => handlePointerDown(e, key, 's')} />
                         
-                        <div className="absolute left-[-6px] top-[-6px] w-4 h-4 bg-primary rounded-full cursor-nwse-resize shadow-md" onPointerDown={(e) => handlePointerDown(e, key, 'nw')} />
-                        <div className="absolute right-[-6px] top-[-6px] w-4 h-4 bg-primary rounded-full cursor-nesw-resize shadow-md" onPointerDown={(e) => handlePointerDown(e, key, 'ne')} />
-                        <div className="absolute left-[-6px] bottom-[-6px] w-4 h-4 bg-primary rounded-full cursor-nesw-resize shadow-md" onPointerDown={(e) => handlePointerDown(e, key, 'sw')} />
-                        <div className="absolute right-[-6px] bottom-[-6px] w-4 h-4 bg-primary rounded-full cursor-nwse-resize shadow-md" onPointerDown={(e) => handlePointerDown(e, key, 'se')} />
+                        <div className="absolute -left-1.5 -top-1.5 w-4 h-4 bg-primary rounded-full cursor-nwse-resize shadow-md" onPointerDown={(e) => handlePointerDown(e, key, 'nw')} />
+                        <div className="absolute -right-1.5 -top-1.5 w-4 h-4 bg-primary rounded-full cursor-nesw-resize shadow-md" onPointerDown={(e) => handlePointerDown(e, key, 'ne')} />
+                        <div className="absolute -left-1.5 -bottom-1.5 w-4 h-4 bg-primary rounded-full cursor-nesw-resize shadow-md" onPointerDown={(e) => handlePointerDown(e, key, 'sw')} />
+                        <div className="absolute -right-1.5 -bottom-1.5 w-4 h-4 bg-primary rounded-full cursor-nwse-resize shadow-md" onPointerDown={(e) => handlePointerDown(e, key, 'se')} />
                       </>
                     )}
                   </div>
