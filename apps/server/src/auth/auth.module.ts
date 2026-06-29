@@ -17,8 +17,7 @@ import { AuthController } from './auth.controller';
         return betterAuth({
           baseURL:
             process.env.BETTER_AUTH_URL ||
-            process.env.BASE_URL ||
-            'https://pbrvits-graduation-day.vercel.app',
+            (process.env.WEB_URL ? `${process.env.WEB_URL}/api/auth` : 'http://localhost:5173/api/auth'),
           trustedOrigins: [
             process.env.WEB_URL || 'http://localhost:5173',
             'https://graduation-day-web.vercel.app',
