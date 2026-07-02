@@ -1,1 +1,1 @@
-export const GUEST_MAX = 2;
+export const GUEST_MAX = 1;

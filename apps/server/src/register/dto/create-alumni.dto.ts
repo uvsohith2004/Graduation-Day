@@ -28,7 +28,7 @@ export class CreateAlumniDto {
   willAttend: string;
 
   @IsString()
-  @IsIn(['0', '1', '2'])
+  @IsIn(['0', '1'])
   numberOfGuests: string;
 
   @IsString()
