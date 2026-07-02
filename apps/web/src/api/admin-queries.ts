@@ -10,6 +10,9 @@ export interface RegisteredAlumni {
   will_attend: boolean
   guest_count: string
   email: string
+  photo: string
+  photo_edit_request: boolean
+  can_edit_photo: boolean
   createdAt: string
 }
 

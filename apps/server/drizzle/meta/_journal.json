@@ -15,6 +15,13 @@
       "when": 1782998122140,
       "tag": "0001_calm_mercury",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1783005725114,
+      "tag": "0002_right_diamondback",
+      "breakpoints": true
     }
   ]
 }

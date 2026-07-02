@@ -95,4 +95,62 @@ export class RegisterService {
       branch: allowedHallTicketNumber.branch 
     };
   }
+
+  async updateTicket(userId: string, payload: any) {
+    const existingUser = await this.db.query.alumni.findFirst({
+      where: eq(alumni.userId, userId),
+    });
+
+    if (!existingUser) {
+      throw new HttpException('Registration not found.', HttpStatus.NOT_FOUND);
+    }
+
+    const updateData: any = {};
+    if (payload.studentName !== undefined) updateData.student_name = payload.studentName;
+    if (payload.mobileNumber !== undefined) updateData.mobile_number = payload.mobileNumber;
+    if (payload.willAttend !== undefined) updateData.will_attend = payload.willAttend === 'Yes' || payload.willAttend === true;
+    if (payload.numberOfGuests !== undefined) updateData.guest_count = payload.numberOfGuests;
+
+    if (payload.branch && payload.branch !== existingUser.branch) {
+      const eventDetails = await this.db.query.branchesTable.findFirst({
+        where: eq(branchesTable.name, payload.branch),
+      });
+      if (!eventDetails) {
+        throw new HttpException('Invalid branch selected.', HttpStatus.BAD_REQUEST);
+      }
+      updateData.branch = payload.branch;
+      updateData.event_date = eventDetails.date;
+      updateData.event_time = eventDetails.time;
+      updateData.venue = eventDetails.venue;
+    }
+
+    if (payload.photo) {
+      if (!existingUser.can_edit_photo) {
+        throw new HttpException('You do not have permission to edit the photo.', HttpStatus.FORBIDDEN);
+      }
+      updateData.photo = payload.photo;
+      updateData.can_edit_photo = false;
+      updateData.photo_edit_request = false;
+    }
+
+    if (Object.keys(updateData).length === 0) {
+      return { success: true, message: 'No changes detected.' };
+    }
+
+    await this.db.update(alumni).set(updateData).where(eq(alumni.userId, userId));
+    return { success: true };
+  }
+
+  async requestPhotoEdit(userId: string) {
+    const existingUser = await this.db.query.alumni.findFirst({
+      where: eq(alumni.userId, userId),
+    });
+
+    if (!existingUser) {
+      throw new HttpException('Registration not found.', HttpStatus.NOT_FOUND);
+    }
+
+    await this.db.update(alumni).set({ photo_edit_request: true }).where(eq(alumni.userId, userId));
+    return { success: true };
+  }
 }

@@ -23,12 +23,14 @@ interface StepDetailsProps {
   }
   onSubmit: (data: DetailsFormValues) => Promise<void>
   isPending: boolean
+  buttonText?: string
 }
 
 export function StepDetails({
   defaultValues,
   onSubmit,
   isPending,
+  buttonText,
 }: StepDetailsProps) {
   const form = useForm<DetailsFormValues>({
     resolver: zodResolver(detailsSchema),
@@ -114,7 +116,7 @@ export function StepDetails({
               Finalizing…
             </>
           ) : (
-            "Complete registration"
+            buttonText || "Complete registration"
           )}
         </Button>
       </div>

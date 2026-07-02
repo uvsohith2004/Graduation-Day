@@ -7,7 +7,7 @@ import {
   useBranchDataQuery,
   type RegisteredAlumni,
 } from "@/api/admin-queries"
-import { useDeleteRegistrationMutation } from "@/api/mutation"
+import { useDeleteRegistrationMutation, useApprovePhotoEditMutation } from "@/api/mutation"
 import gsap from "gsap"
 import { Button } from "@repo/ui/components/button"
 import {
@@ -18,8 +18,9 @@ import {
   TableHeader,
   TableRow,
 } from "@repo/ui/components/table"
-import { Loader2, Download, Trash2, CheckCircle2, Users } from "lucide-react"
+import { Loader2, Download, Trash2, CheckCircle2, Users, Eye, Check } from "lucide-react"
 import * as XLSX from "xlsx"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@repo/ui/components/dialog"
 
 export const Route = createFileRoute("/dashboard/registered")({
   component: DashboardRegistered,
@@ -29,11 +30,14 @@ function DashboardRegistered() {
   const queryClient = useQueryClient()
   const [selectedBranch, setSelectedBranch] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [approvingId, setApprovingId] = useState<string | null>(null)
+  const [photoViewUrl, setPhotoViewUrl] = useState<string | null>(null)
 
   const { data: branchesData } = useBranchesQuery()
   const { data: overviewStats } = useOverviewStatsQuery()
   const { data: branchData, isLoading } = useBranchDataQuery(selectedBranch, "registered")
   const deleteRegMutation = useDeleteRegistrationMutation()
+  const approvePhotoMutation = useApprovePhotoEditMutation()
 
   const pillsRef = useRef<HTMLDivElement>(null)
   const tableRef = useRef<HTMLDivElement>(null)
@@ -80,6 +84,13 @@ function DashboardRegistered() {
     setDeletingId(null)
     queryClient.invalidateQueries({ queryKey: ["admin", "branchData"] })
     queryClient.invalidateQueries({ queryKey: ["admin", "overview"] })
+  }
+
+  const handleApprovePhotoEdit = async (id: string) => {
+    setApprovingId(id)
+    await approvePhotoMutation.mutateAsync(id)
+    setApprovingId(null)
+    queryClient.invalidateQueries({ queryKey: ["admin", "branchData"] })
   }
 
   const handleExport = () => {
@@ -184,6 +195,8 @@ function DashboardRegistered() {
                 <TableHead className="h-10 pl-5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Roll No.</TableHead>
                 <TableHead className="h-10 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Name</TableHead>
                 <TableHead className="h-10 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Mobile</TableHead>
+                <TableHead className="h-10 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Email</TableHead>
+                <TableHead className="h-10 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Photo</TableHead>
                 <TableHead className="h-10 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Attending</TableHead>
                 <TableHead className="h-10 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Guests</TableHead>
                 <TableHead className="h-10 pr-5 text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground">Actions</TableHead>
@@ -195,9 +208,11 @@ function DashboardRegistered() {
                   <TableCell className="py-3 pl-5"><div className="h-3.5 w-20 animate-pulse rounded bg-muted" /></TableCell>
                   <TableCell className="py-3"><div className="h-3.5 w-32 animate-pulse rounded bg-muted" /></TableCell>
                   <TableCell className="py-3"><div className="h-3.5 w-24 animate-pulse rounded bg-muted" /></TableCell>
+                  <TableCell className="py-3"><div className="h-3.5 w-32 animate-pulse rounded bg-muted" /></TableCell>
+                  <TableCell className="py-3"><div className="h-6 w-16 animate-pulse rounded bg-muted" /></TableCell>
                   <TableCell className="py-3"><div className="h-5 w-10 animate-pulse rounded-sm bg-muted" /></TableCell>
                   <TableCell className="py-3"><div className="h-3.5 w-6 animate-pulse rounded bg-muted" /></TableCell>
-                  <TableCell className="py-3 pr-5 text-right"><div className="ml-auto h-7 w-7 animate-pulse rounded bg-muted" /></TableCell>
+                  <TableCell className="py-3 pr-5 text-right"><div className="ml-auto h-7 w-12 animate-pulse rounded bg-muted" /></TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -217,6 +232,8 @@ function DashboardRegistered() {
                 <TableHead className="h-10 pl-5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Roll No.</TableHead>
                 <TableHead className="h-10 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Name</TableHead>
                 <TableHead className="h-10 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Mobile</TableHead>
+                <TableHead className="h-10 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Email</TableHead>
+                <TableHead className="h-10 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Photo</TableHead>
                 <TableHead className="h-10 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Attending</TableHead>
                 <TableHead className="h-10 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Guests</TableHead>
                 <TableHead className="h-10 pr-5 text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground">Actions</TableHead>
@@ -225,6 +242,7 @@ function DashboardRegistered() {
             <TableBody>
               {(branchData as RegisteredAlumni[]).map((user) => {
                 const isDeleting = deletingId === user.id
+                const isApproving = approvingId === user.id
                 return (
                   <TableRow
                     key={user.id}
@@ -242,6 +260,20 @@ function DashboardRegistered() {
                     <TableCell className="py-3 text-sm text-muted-foreground tabular-nums">
                       {user.mobile_number}
                     </TableCell>
+                    <TableCell className="py-3 text-sm text-muted-foreground max-w-[150px] truncate" title={user.email}>
+                      {user.email}
+                    </TableCell>
+                    <TableCell className="py-3">
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        className="h-6 px-2 text-[10px]"
+                        onClick={() => setPhotoViewUrl(user.photo)}
+                      >
+                        <Eye className="w-3 h-3 mr-1" />
+                        See Photo
+                      </Button>
+                    </TableCell>
                     <TableCell className="py-3">
                       <AttendancePill attending={user.will_attend} />
                     </TableCell>
@@ -249,18 +281,32 @@ function DashboardRegistered() {
                       {user.guest_count}
                     </TableCell>
                     <TableCell className="py-3 pr-5 text-right">
-                      <button
-                        onClick={() => handleDelete(user.id)}
-                        disabled={isDeleting}
-                        className="inline-flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground/40 opacity-0 transition-all duration-150 group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive disabled:pointer-events-none"
-                        title="Remove registration"
-                      >
-                        {isDeleting ? (
-                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                        ) : (
-                          <Trash2 className="h-3.5 w-3.5" />
+                      <div className="flex items-center justify-end gap-1">
+                        {user.photo_edit_request && !user.can_edit_photo && (
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="h-7 w-7 bg-amber-500/10 text-amber-600 hover:bg-amber-500/20 hover:text-amber-700 border-amber-200 dark:border-amber-900/50"
+                            onClick={() => handleApprovePhotoEdit(user.id)}
+                            disabled={isApproving}
+                            title="Approve Photo Edit Request"
+                          >
+                            {isApproving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
+                          </Button>
                         )}
-                      </button>
+                        <button
+                          onClick={() => handleDelete(user.id)}
+                          disabled={isDeleting}
+                          className="inline-flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground/40 opacity-0 transition-all duration-150 group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive disabled:pointer-events-none"
+                          title="Remove registration"
+                        >
+                          {isDeleting ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          ) : (
+                            <Trash2 className="h-3.5 w-3.5" />
+                          )}
+                        </button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 )
@@ -276,6 +322,24 @@ function DashboardRegistered() {
           </div>
         </div>
       )}
+
+      {/* Photo View Dialog */}
+      <Dialog open={!!photoViewUrl} onOpenChange={(open) => !open && setPhotoViewUrl(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Alumni Photo</DialogTitle>
+          </DialogHeader>
+          <div className="flex justify-center p-4">
+            {photoViewUrl && (
+              <img
+                src={photoViewUrl}
+                alt="Alumni"
+                className="max-h-[60vh] max-w-full rounded-md object-contain border"
+              />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

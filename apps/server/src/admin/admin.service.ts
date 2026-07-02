@@ -61,6 +61,14 @@ export class AdminService {
     return { success: true };
   }
 
+  async approvePhotoEdit(id: string) {
+    await db.update(alumni).set({
+      can_edit_photo: true,
+      photo_edit_request: false,
+    }).where(eq(alumni.id, id));
+    return { success: true };
+  }
+
   async deleteEligibility(rollNo: string) {
     await db.delete(eligibility).where(eq(eligibility.rollNumber, rollNo));
     return { success: true };

@@ -1,12 +1,21 @@
 import { createFileRoute, useNavigate, Link } from '@tanstack/react-router';
 import { useRegistrationQuery } from '@/api/queries';
+import {
+  useUpdateRegistrationMutation,
+  useRequestPhotoEditMutation,
+  useGetPresignedUrlMutation,
+  useUploadFileMutation,
+} from '@/api/mutation';
+import { useQueryClient } from '@tanstack/react-query';
 import { authClient } from '@/lib/auth-client';
-import { useEffect, useState } from 'react';
-import { Download, Loader2, CheckCircle2 } from 'lucide-react';
+import { useEffect, useState, useRef } from 'react';
+import { Download, Loader2, CheckCircle2, Edit2, Image as ImageIcon, Camera } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@repo/ui/components/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@repo/ui/components/dialog';
 import { generateTicketImage } from '@/lib/ticket-generator';
 import { cn } from '@repo/ui/lib/utils';
+import { StepDetails } from '@/components/register/step-details';
 
 export const Route = createFileRoute('/tickets/$userId')({
   component: TicketComponent,
@@ -14,9 +23,22 @@ export const Route = createFileRoute('/tickets/$userId')({
 
 function TicketComponent() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { data: session, isPending: isAuthPending } = authClient.useSession();
   const { data: ticket, isPending: isTicketPending } = useRegistrationQuery();
+  
+  const updateRegMutation = useUpdateRegistrationMutation();
+  const requestPhotoMutation = useRequestPhotoEditMutation();
+  const getUrlMutation = useGetPresignedUrlMutation();
+  const uploadMutation = useUploadFileMutation();
+
   const [isDownloading, setIsDownloading] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [photoDialogOpen, setPhotoDialogOpen] = useState(false);
+
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!isAuthPending && !session) {
@@ -61,6 +83,63 @@ function TicketComponent() {
       toast.error("Failed to download pass. Make sure template.png is in public folder.");
     } finally {
       setIsDownloading(false);
+    }
+  };
+
+  const handleEditSubmit = async (data: any) => {
+    if (!session?.user?.id) return;
+    try {
+      await updateRegMutation.mutateAsync({
+        userId: session.user.id,
+        mobileNumber: data.mobileNumber,
+        willAttend: data.willAttend === "Yes",
+        numberOfGuests: data.willAttend === "Yes" ? data.guests.toString() : '0'
+      });
+      setEditDialogOpen(false);
+      queryClient.invalidateQueries({ queryKey: ["registration", session.user.id] });
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleRequestPhotoEdit = async () => {
+    try {
+      await requestPhotoMutation.mutateAsync();
+      queryClient.invalidateQueries({ queryKey: ["registration", session?.user?.id] });
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handlePhotoUpload = async () => {
+    if (!photoFile || !session?.user?.id) return;
+    try {
+      const { uploadUrl, url } = await getUrlMutation.mutateAsync({
+        fileType: photoFile.type,
+        fileSize: photoFile.size
+      });
+      await uploadMutation.mutateAsync({
+        uploadUrl,
+        file: photoFile
+      });
+      await updateRegMutation.mutateAsync({
+        userId: session.user.id,
+        photo: url
+      });
+      setPhotoDialogOpen(false);
+      setPhotoFile(null);
+      setPhotoPreview(null);
+      
+      // Update cache immediately so access is gone instantly
+      queryClient.setQueryData(["registration", session.user.id], (old: any) => {
+        if (!old) return old;
+        return { ...old, photo: url, can_edit_photo: false, photo_edit_request: false };
+      });
+      
+      toast.success("Photo updated successfully!");
+      queryClient.invalidateQueries({ queryKey: ["registration", session.user.id] });
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -146,9 +225,40 @@ function TicketComponent() {
                 </>
               )}
             </Button>
-            <Link to="/" className="w-full">
+            
+            <div className="flex gap-3">
               <Button
                 variant="outline"
+                className="h-12 rounded-2xl text-[15px] font-medium flex-1"
+                onClick={() => setEditDialogOpen(true)}
+              >
+                <Edit2 className="mr-2 w-4 h-4" />
+                Edit Details
+              </Button>
+              <Button
+                variant={ticket.can_edit_photo ? "default" : "outline"}
+                className={cn(
+                  "h-12 rounded-2xl text-[15px] font-medium flex-1",
+                  ticket.can_edit_photo && "bg-primary text-primary-foreground hover:bg-primary/90"
+                )}
+                onClick={() => {
+                  if (ticket.can_edit_photo) {
+                    setPhotoDialogOpen(true);
+                  } else if (!ticket.photo_edit_request) {
+                    handleRequestPhotoEdit();
+                  } else {
+                    toast.info("Photo edit request is already pending approval.");
+                  }
+                }}
+              >
+                <ImageIcon className="mr-2 w-4 h-4" />
+                {ticket.can_edit_photo ? "Upload Photo" : ticket.photo_edit_request ? "Request Pending" : "Change Photo"}
+              </Button>
+            </div>
+
+            <Link to="/" className="w-full">
+              <Button
+                variant="secondary"
                 className="h-12 rounded-2xl text-[15px] font-medium w-full"
               >
                 Go to Homepage
@@ -158,6 +268,87 @@ function TicketComponent() {
 
         </div>
       </div>
+
+      {/* Edit Details Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Edit Registration Details</DialogTitle>
+            <DialogDescription>Update your ticket details. Click save when you're done.</DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            {ticket && (
+              <StepDetails
+                defaultValues={{
+                  mobileNumber: ticket.mobile_number,
+                  willAttend: ticket.will_attend ? "Yes" : "No",
+                  guests: parseInt(ticket.guest_count) || 0
+                }}
+                onSubmit={handleEditSubmit}
+                isPending={updateRegMutation.isPending}
+                buttonText="Save Changes"
+              />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Photo Upload Dialog */}
+      <Dialog open={photoDialogOpen} onOpenChange={(open) => {
+        setPhotoDialogOpen(open);
+        if (!open) {
+          setPhotoPreview(null);
+          setPhotoFile(null);
+        }
+      }}>
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle>Update Photo</DialogTitle>
+            <DialogDescription>Upload a new passport size photo for your pass.</DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col items-center gap-4 py-6">
+            <input
+              type="file"
+              accept="image/jpeg, image/png"
+              className="hidden"
+              ref={fileInputRef}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  setPhotoFile(file);
+                  setPhotoPreview(URL.createObjectURL(file));
+                }
+              }}
+            />
+            <div 
+              className="w-32 h-40 border-2 border-dashed border-border rounded-xl flex items-center justify-center overflow-hidden cursor-pointer hover:bg-accent/50 transition-colors"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              {photoPreview ? (
+                <img src={photoPreview as string} className="w-full h-full object-cover" alt="Preview" />
+              ) : (
+                <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                  <Camera className="w-8 h-8" />
+                  <span className="text-xs">Tap to select</span>
+                </div>
+              )}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button 
+              className="w-full" 
+              disabled={!photoFile || getUrlMutation.isPending || uploadMutation.isPending || updateRegMutation.isPending}
+              onClick={handlePhotoUpload}
+            >
+              {(getUrlMutation.isPending || uploadMutation.isPending || updateRegMutation.isPending) ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                "Upload Photo"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

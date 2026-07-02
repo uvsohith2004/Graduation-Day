@@ -78,7 +78,7 @@ function ContactPage() {
           <div className="space-y-2">
             <h1 className="text-2xl font-bold tracking-tight">We got it.</h1>
             <p className="text-sm leading-relaxed text-muted-foreground">
-              Your message is on its way. We'll be in touch shortly.
+              Your message is on its way. You will get a reply from <span className="font-medium text-foreground">visvotsav2k25@gmail.com</span> shortly.
             </p>
           </div>
 

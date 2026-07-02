@@ -138,6 +138,11 @@ export class AdminController {
     return this.adminService.deleteRegistration(id);
   }
 
+  @Post('registered/:id/approve-photo-edit')
+  async approvePhotoEdit(@Param('id') id: string) {
+    return this.adminService.approvePhotoEdit(id);
+  }
+
   @Delete('eligibility/:rollNo')
   async deleteEligibility(@Param('rollNo') rollNo: string) {
     return this.adminService.deleteEligibility(rollNo);

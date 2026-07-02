@@ -17,7 +17,7 @@ export const createRegistration = async (data: any) => {
 }
 
 export const updateRegistration = async (data: any) => {
-  const res = await axiosInstance.put("/api/mutations/update-registration", data)
+  const res = await axiosInstance.put("/register/ticket", data)
   return res.data
 }
 
@@ -41,6 +41,16 @@ export const getSignedUrl = async ({ fileType, fileSize }: { fileType: string, f
 
 export const getRegistration = async () => {
   const res = await axiosInstance.get("/register/ticket")
+  return res.data
+}
+
+export const requestPhotoEdit = async () => {
+  const res = await axiosInstance.post("/register/ticket/photo-edit-request")
+  return res.data
+}
+
+export const approvePhotoEdit = async (id: string) => {
+  const res = await axiosInstance.post(`/admin/registered/${id}/approve-photo-edit`)
   return res.data
 }
 

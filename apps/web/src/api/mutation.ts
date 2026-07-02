@@ -22,6 +22,8 @@ import {
   clearImportErrors,
   saveTemplate,
   syncEmailReplies,
+  requestPhotoEdit,
+  approvePhotoEdit,
 } from "@/services/fetch"
 
 export const useCheckEligibilityMutation = () => {
@@ -233,5 +235,21 @@ export const useSyncEmailRepliesMutation = () => {
   return useMutation({
     mutationFn: syncEmailReplies,
     onError: (error: any) => toast.error(error?.response?.data?.message || "Failed to sync emails"),
+  })
+}
+
+export const useRequestPhotoEditMutation = () => {
+  return useMutation({
+    mutationFn: requestPhotoEdit,
+    onSuccess: () => toast.success("Photo edit request submitted!"),
+    onError: (error: any) => toast.error(error?.response?.data?.message || "Failed to request photo edit"),
+  })
+}
+
+export const useApprovePhotoEditMutation = () => {
+  return useMutation({
+    mutationFn: approvePhotoEdit,
+    onSuccess: () => toast.success("Photo edit approved!"),
+    onError: (error: any) => toast.error(error?.response?.data?.message || "Failed to approve photo edit"),
   })
 }
