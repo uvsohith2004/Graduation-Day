@@ -16,6 +16,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { generateTicketImage } from '@/lib/ticket-generator';
 import { cn } from '@repo/ui/lib/utils';
 import { StepDetails } from '@/components/register/step-details';
+import { PhotoCropper } from '@/components/register/photo-cropper';
 
 export const Route = createFileRoute('/tickets/$userId')({
   component: TicketComponent,
@@ -38,6 +39,9 @@ function TicketComponent() {
 
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [rawImageSrc, setRawImageSrc] = useState("");
+  const [isCropperOpen, setIsCropperOpen] = useState(false);
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -315,8 +319,13 @@ function TicketComponent() {
               onChange={(e) => {
                 const file = e.target.files?.[0];
                 if (file) {
-                  setPhotoFile(file);
-                  setPhotoPreview(URL.createObjectURL(file));
+                  const reader = new FileReader();
+                  reader.addEventListener("load", () => {
+                    setRawImageSrc(reader.result?.toString() || "");
+                    setIsCropperOpen(true);
+                  });
+                  reader.readAsDataURL(file);
+                  e.target.value = "";
                 }
               }}
             />
@@ -349,6 +358,19 @@ function TicketComponent() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Cropper Modal */}
+      {isCropperOpen && (
+        <PhotoCropper
+          imageSrc={rawImageSrc}
+          open={isCropperOpen}
+          onOpenChange={setIsCropperOpen}
+          onCropComplete={(croppedFile) => {
+            setPhotoFile(croppedFile);
+            setPhotoPreview(URL.createObjectURL(croppedFile));
+          }}
+        />
+      )}
     </div>
   );
 }

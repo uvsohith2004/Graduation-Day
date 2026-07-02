@@ -11,6 +11,7 @@ import {
 import { cn } from "@repo/ui/lib/utils"
 import { Button } from "@repo/ui/components/button"
 import { Field, FieldError } from "@repo/ui/components/field"
+import { PhotoCropper } from "./photo-cropper"
 
 interface StepPhotoUploadProps {
   photoPreview: string
@@ -31,42 +32,50 @@ export function StepPhotoUpload({
 }: StepPhotoUploadProps) {
   const [photoFile, setPhotoFile] = useState<File | null>(null)
   const [photoError, setPhotoError] = useState("")
+  
+  // Cropper states
+  const [rawImageSrc, setRawImageSrc] = useState<string>("")
+  const [isCropperOpen, setIsCropperOpen] = useState(false)
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.[0]) {
       const file = e.target.files[0]
-      if (file.size > 3 * 1024 * 1024) {
-        setPhotoError("File size must be less than 3MB.")
-        return
-      }
       if (file.type !== "image/jpeg" && file.type !== "image/png") {
         setPhotoError("Only JPG and PNG formats are allowed.")
         return
       }
       setPhotoError("")
-      setPhotoFile(file)
-      onPhotoSelect(file)
+      
+      // Load image to pass to cropper
+      const reader = new FileReader()
+      reader.addEventListener("load", () => {
+        setRawImageSrc(reader.result?.toString() || "")
+        setIsCropperOpen(true)
+      })
+      reader.readAsDataURL(file)
+      // reset input
+      e.target.value = ""
     }
+  }
+
+  const handleCropComplete = (croppedFile: File) => {
+    if (croppedFile.size > 3 * 1024 * 1024) {
+      setPhotoError("Cropped file size must be less than 3MB.")
+      return
+    }
+    setPhotoFile(croppedFile)
+    onPhotoSelect(croppedFile)
   }
 
   const handleUpload = async () => {
     if (!photoFile) return
-
-    if (photoFile.size > 3 * 1024 * 1024) {
-      setPhotoError("File size must be less than 3MB.")
-      return
-    }
-    if (photoFile.type !== "image/jpeg" && photoFile.type !== "image/png") {
-      setPhotoError("Only JPG and PNG formats are allowed.")
-      return
-    }
-
     setPhotoError("")
     await onUpload(photoFile)
   }
 
   const handleRemove = () => {
     setPhotoFile(null)
+    setRawImageSrc("")
     setPhotoError("")
     onRemove()
   }
@@ -167,6 +176,17 @@ export function StepPhotoUpload({
           )}
         </span>
       </Button>
+
+      {/* Cropper Modal */}
+      {isCropperOpen && (
+        <PhotoCropper
+          imageSrc={rawImageSrc}
+          open={isCropperOpen}
+          onOpenChange={setIsCropperOpen}
+          onCropComplete={handleCropComplete}
+        />
+      )}
     </div>
   )
 }
+
