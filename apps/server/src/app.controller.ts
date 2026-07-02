@@ -14,4 +14,9 @@ export class AppController {
   async getPublicTemplate() {
     return this.appService.getPublicTemplate();
   }
+
+  @Get('public/branches')
+  async getPublicBranches() {
+    return this.appService.getPublicBranches();
+  }
 }

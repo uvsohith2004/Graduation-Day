@@ -96,6 +96,11 @@ export const replyToContactMessage = async (data: { messageId: string, subject: 
 
 // --- New API functions for Branches and Registration Management ---
 
+export const getPublicBranches = async () => {
+  const res = await axiosInstance.get("/public/branches")
+  return res.data
+}
+
 export const getBranches = async () => {
   const res = await axiosInstance.get("/admin/branches")
   return res.data

@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { db } from './database/db';
 import { ticketTemplate } from './database/schemas/template.schema';
-import { eq } from 'drizzle-orm';
+import { branchesTable } from './database/schemas/branch.schema';
+import { eq, asc } from 'drizzle-orm';
 
 @Injectable()
 export class AppService {
@@ -14,5 +15,11 @@ export class AppService {
       where: eq(ticketTemplate.id, 'default')
     });
     return template || null;
+  }
+
+  async getPublicBranches() {
+    return await db.query.branchesTable.findMany({
+      orderBy: [asc(branchesTable.date), asc(branchesTable.time)]
+    });
   }
 }
