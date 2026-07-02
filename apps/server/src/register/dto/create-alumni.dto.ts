@@ -3,7 +3,7 @@ import {
   IsString,
   Matches,
   MinLength,
-  IsIn
+  IsIn,
 } from 'class-validator';
 
 export class CreateAlumniDto {
@@ -19,8 +19,6 @@ export class CreateAlumniDto {
   @IsNotEmpty()
   branch: string;
 
-  
-
   @IsString()
   @Matches(/^[0-9]{10}$/, { message: 'Mobile number must be 10 digits.' })
   mobileNumber: string;
@@ -30,7 +28,7 @@ export class CreateAlumniDto {
   willAttend: string;
 
   @IsString()
-  @IsIn(['0', '1', '2', '3', '4'])
+  @IsIn(['0', '1', '2'])
   numberOfGuests: string;
 
   @IsString()
