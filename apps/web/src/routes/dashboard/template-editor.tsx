@@ -93,8 +93,9 @@ function TemplateEditor() {
         lastSavedBg.current = templateData.bgImageUrl
       }
       if (templateData.config) {
-        setConfig(templateData.config)
-        lastSavedConfig.current = JSON.stringify(templateData.config)
+        const mergedConfig = { ...DEFAULT_CONFIG, ...templateData.config }
+        setConfig(mergedConfig)
+        lastSavedConfig.current = JSON.stringify(mergedConfig)
       }
     }
   }, [templateData])
