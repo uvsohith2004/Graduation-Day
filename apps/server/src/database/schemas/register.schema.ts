@@ -1,6 +1,7 @@
 import { pgTable, text, timestamp, numeric, boolean } from "drizzle-orm/pg-core";
 import { user } from "./auth.schema";
-
+import { branchesTable } from "./branch.schema";
+import { eligibility } from "./eligibility.schema";
 
 export const alumni = pgTable('alumni', {
   id: text('id').primaryKey(),
@@ -11,8 +12,8 @@ export const alumni = pgTable('alumni', {
   email: text('email').notNull(),
   student_name: text('student_name').notNull(),
   mobile_number: text('mobile_number').notNull(),
-  branch: text('branch').notNull(),
-  hall_ticket_number: text('hall_ticket_number').notNull(),
+  branch: text('branch').notNull().references(() => branchesTable.name, { onDelete: "cascade", onUpdate: "cascade" }),
+  hall_ticket_number: text('hall_ticket_number').notNull().references(() => eligibility.rollNumber, { onDelete: "cascade", onUpdate: "cascade" }),
   will_attend: boolean('will_attend').default(false).notNull(),
   guest_count: numeric('guest_count').notNull(),
   photo: text('photo').notNull(),

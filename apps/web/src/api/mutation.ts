@@ -12,6 +12,7 @@ import {
   verifyAdminOtp,
   submitContactMessage,
   createBranch,
+  updateBranch,
   deleteBranch,
   deleteRegistration,
   deleteEligibility,
@@ -152,6 +153,14 @@ export const useCreateBranchMutation = () => {
     mutationFn: createBranch,
     onSuccess: () => toast.success("Branch created successfully!"),
     onError: (error: any) => toast.error(error?.response?.data?.message || "Failed to create branch"),
+  })
+}
+
+export const useUpdateBranchMutation = () => {
+  return useMutation({
+    mutationFn: updateBranch,
+    onSuccess: () => toast.success("Branch updated successfully!"),
+    onError: (error: any) => toast.error(error?.response?.data?.message || "Failed to update branch"),
   })
 }
 

@@ -37,6 +37,17 @@ export class AdminService {
     return { success: true };
   }
 
+  async updateBranch(id: string, data: { name: string; venue: string; date: string; time: string }) {
+    await db.update(branchesTable).set({
+      name: data.name,
+      venue: data.venue,
+      date: data.date,
+      time: data.time,
+    }).where(eq(branchesTable.id, id));
+    this.branchesCache = null; // Invalidate cache
+    return { success: true };
+  }
+
   async deleteBranch(id: string) {
     await db.delete(branchesTable).where(eq(branchesTable.id, id));
     this.branchesCache = null; // Invalidate cache

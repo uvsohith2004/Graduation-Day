@@ -106,6 +106,11 @@ export const createBranch = async (data: { name: string; venue: string; date: st
   return res.data
 }
 
+export const updateBranch = async (data: { id: string, payload: { name: string; venue: string; date: string; time: string } }) => {
+  const res = await axiosInstance.put(`/admin/branches/${data.id}`, data.payload)
+  return res.data
+}
+
 export const deleteBranch = async (id: string) => {
   const res = await axiosInstance.delete(`/admin/branches/${id}`)
   return res.data

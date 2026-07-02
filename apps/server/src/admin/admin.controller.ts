@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Delete, Param, Body, Query, UseGuards, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Param, Body, Query, UseGuards, HttpException, HttpStatus, Put } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { AuthGuard } from '../auth/auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
@@ -97,6 +97,17 @@ export class AdminController {
       throw new HttpException('Missing branch fields', HttpStatus.BAD_REQUEST);
     }
     return this.adminService.createBranch(data);
+  }
+
+  @Put('branches/:id')
+  async updateBranch(
+    @Param('id') id: string,
+    @Body() data: { name: string; venue: string; date: string; time: string }
+  ) {
+    if (!data.name || !data.venue || !data.date || !data.time) {
+      throw new HttpException('Missing branch fields', HttpStatus.BAD_REQUEST);
+    }
+    return this.adminService.updateBranch(id, data);
   }
 
   @Delete('branches/:id')

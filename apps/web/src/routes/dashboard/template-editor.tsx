@@ -6,7 +6,7 @@ import { Button } from '@repo/ui/components/button'
 import { Input } from '@repo/ui/components/input'
 import { Label } from '@repo/ui/components/label'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/components/dialog'
-import { Loader2, Save, ImagePlus, Beaker, Eye, EyeOff, Lock, Unlock, WrapText, AlignLeft, AlignCenter, AlignRight, Type, Image as ImageIcon } from 'lucide-react'
+import { Loader2, Save, ImagePlus, Beaker, Eye, EyeOff, Lock, Unlock, WrapText, AlignLeft, AlignCenter, AlignRight, Type, Image as ImageIcon, MapPin } from 'lucide-react'
 import { toast } from 'sonner'
 import { generateTicketImage } from '@/lib/ticket-generator'
 
@@ -28,7 +28,8 @@ const DEFAULT_CONFIG = {
   branch: createFieldConfig({ y: 0.44 }),
   date: createFieldConfig({ y: 0.494 }),
   time: createFieldConfig({ y: 0.545 }),
-  guests: createFieldConfig({ y: 0.6 }),
+  venue: createFieldConfig({ y: 0.6 }),
+  guests: createFieldConfig({ y: 0.65 }),
   photo: { x: 0.824, y: 0.236, w: 0.15, h: 0.16, radius: 0.018, isEnabled: true, isLocked: false }
 }
 
@@ -38,6 +39,7 @@ const FIELD_LABELS = {
   branch: "Branch",
   date: "Event Date",
   time: "Event Time",
+  venue: "Venue",
   guests: "Guest Count",
   photo: "Profile Photo"
 }
@@ -48,17 +50,18 @@ const FIELD_ICONS: Record<string, React.ReactNode> = {
   branch: <Type className="w-4 h-4" />,
   date: <Type className="w-4 h-4" />,
   time: <Type className="w-4 h-4" />,
+  venue: <MapPin className="w-4 h-4" />,
   guests: <Type className="w-4 h-4" />,
   photo: <ImageIcon className="w-4 h-4" />,
 }
 
-// Dummy user for testing
 const MOCK_TICKET = {
   student_name: "veera ventakata stayasai siva kumar",
   hall_ticket_number: "21K61A05I2",
   branch: "CSE",
   event_date: "24-03-2025",
   event_time: "10:00 AM",
+  venue: "KVR Main Convention Hall",
   guest_count: 2,
   photo: "/template.png"
 }

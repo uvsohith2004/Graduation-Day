@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useLayoutEffect } from "react"
 import { createFileRoute } from "@tanstack/react-router"
 import { useQueryClient } from "@tanstack/react-query"
 import { useBranchesQuery } from "@/api/admin-queries"
-import { useCreateBranchMutation, useDeleteBranchMutation } from "@/api/mutation"
+import { useCreateBranchMutation, useDeleteBranchMutation, useUpdateBranchMutation } from "@/api/mutation"
 import gsap from "gsap"
 import { format, parse, isValid } from "date-fns"
 
@@ -27,7 +27,7 @@ import {
   TableHeader,
   TableRow,
 } from "@repo/ui/components/table"
-import { Loader2, Trash2, Plus, X, MapPin, Building2, Check, Clock, CalendarDays, CalendarIcon } from "lucide-react"
+import { Loader2, Trash2, Plus, X, MapPin, Building2, Check, Clock, CalendarDays, CalendarIcon, Edit2 } from "lucide-react"
 
 
 export const Route = createFileRoute("/dashboard/branches")({
@@ -38,8 +38,8 @@ function DashboardBranches() {
   const queryClient = useQueryClient()
   const { data: branches, isLoading } = useBranchesQuery()
 
-  // Deck State
   const [isCreating, setIsCreating] = useState(false)
+  const [editingBranchId, setEditingBranchId] = useState<string | null>(null)
   const deckRef = useRef<HTMLDivElement>(null)
   const minuteInputRef = useRef<HTMLInputElement>(null)
 
@@ -63,6 +63,7 @@ function DashboardBranches() {
 
   const createMutation = useCreateBranchMutation()
   const deleteMutation = useDeleteBranchMutation()
+  const updateMutation = useUpdateBranchMutation()
 
   // GSAP Animations
   useLayoutEffect(() => {
@@ -92,7 +93,17 @@ function DashboardBranches() {
         opacity: 0,
         duration: 0.3,
         ease: "power2.in",
-        onComplete: () => setIsCreating(false)
+        onComplete: () => {
+          setIsCreating(false)
+          setEditingBranchId(null)
+          setName("")
+          setVenue("")
+          setDateStr("")
+          setDateObj(undefined)
+          setHour("09")
+          setMinute("00")
+          setPeriod("AM")
+        }
       })
     } else {
       setIsCreating(true)
@@ -177,12 +188,35 @@ function DashboardBranches() {
     else if (currentVal.length === 1) setMinute(`0${currentVal}`)
   }
 
-  // --- Submission ---
+  // --- Actions ---
+  const handleEdit = (b: any) => {
+    setEditingBranchId(b.id)
+    setName(b.name)
+    setVenue(b.venue)
+    setDateStr(b.date)
+    setDateObj(parse(b.date, "dd-MM-yyyy", new Date()))
+    
+    // Parse time like "09:00 AM"
+    const [timePart, periodPart] = b.time.split(" ")
+    const [h, m] = timePart.split(":")
+    setHour(h)
+    setMinute(m)
+    setPeriod(periodPart as "AM" | "PM")
+    
+    if (!isCreating) {
+      setIsCreating(true)
+    }
+  }
+
   const handleCreate = async () => {
     if (!name || !venue || !dateStr || !hour || !minute) return
     const formattedTime = `${hour}:${minute} ${period}`
     
-    await createMutation.mutateAsync({ name, venue, date: dateStr, time: formattedTime })
+    if (editingBranchId) {
+      await updateMutation.mutateAsync({ id: editingBranchId, payload: { name, venue, date: dateStr, time: formattedTime } })
+    } else {
+      await createMutation.mutateAsync({ name, venue, date: dateStr, time: formattedTime })
+    }
     
     setName("")
     setVenue("")
@@ -191,6 +225,7 @@ function DashboardBranches() {
     setHour("09")
     setMinute("00")
     setPeriod("AM")
+    setEditingBranchId(null)
     toggleDeck()
     queryClient.invalidateQueries({ queryKey: ["admin", "branches"] })
   }
@@ -368,10 +403,10 @@ function DashboardBranches() {
                     <Button 
                       className="h-11 w-full rounded-lg shadow-none" 
                       onClick={handleCreate} 
-                      disabled={createMutation.isPending || !name || !venue || !dateStr}
+                      disabled={createMutation.isPending || updateMutation.isPending || !name || !venue || !dateStr}
                     >
-                      {createMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Check className="h-4 w-4 mr-2" />}
-                      Add
+                      {(createMutation.isPending || updateMutation.isPending) ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Check className="h-4 w-4 mr-2" />}
+                      {editingBranchId ? "Update" : "Add"}
                     </Button>
                   </div>
 
@@ -414,6 +449,14 @@ function DashboardBranches() {
                     </div>
                   </TableCell>
                   <TableCell className="text-right pr-6 py-4">
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="opacity-0 group-hover:opacity-100 transition-opacity rounded-md hover:bg-muted hover:text-foreground h-8 w-8 mr-1"
+                      onClick={() => handleEdit(b)}
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
                     <Button 
                       variant="ghost" 
                       size="icon" 
