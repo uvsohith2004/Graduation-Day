@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
-import { getDashboardStats, getOverviewStats, getBranchData, getAllUsers, getContactMessages,  getImportErrors } from "../services/fetch"
+import { getDashboardStats, getOverviewStats, getBranchData, getAllUsers, getContactMessages,  getImportErrors, getContactMessageThread } from "../services/fetch"
 
 export interface RegisteredAlumni {
   id: string
@@ -137,5 +137,27 @@ export const useTemplateQuery = () => {
       return getTemplate();
     },
     staleTime: 60000,
+  })
+}
+
+export interface ContactMessageReply {
+  id: string;
+  contactMessageId: string;
+  sender: string;
+  message: string;
+  createdAt: string;
+}
+
+export interface ContactMessageThread {
+  message: ContactMessage;
+  replies: ContactMessageReply[];
+}
+
+export const useContactMessageThreadQuery = (messageId: string | null) => {
+  return useQuery<ContactMessageThread, Error>({
+    queryKey: ["admin", "contactMessageThread", messageId],
+    queryFn: () => getContactMessageThread(messageId!),
+    enabled: !!messageId,
+    staleTime: 10000,
   })
 }

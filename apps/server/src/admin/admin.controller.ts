@@ -84,6 +84,24 @@ export class AdminController {
     }
   }
 
+  @Post('contact-messages/sync')
+  async syncEmailReplies() {
+    try {
+      return await this.adminService.syncEmailReplies();
+    } catch (error: any) {
+      throw new HttpException(error.message || 'Failed to sync emails', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @Get('contact-messages/:id/thread')
+  async getContactMessageThread(@Param('id') id: string) {
+    try {
+      return await this.adminService.getContactMessageThread(id);
+    } catch (error: any) {
+      throw new HttpException(error.message || 'Failed to get thread', HttpStatus.NOT_FOUND);
+    }
+  }
+
   // --- New Routes for dynamic branches and deletion ---
 
   @Get('branches')

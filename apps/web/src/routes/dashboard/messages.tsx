@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect, useLayoutEffect } from "react"
 import { createFileRoute } from "@tanstack/react-router"
 import { useQueryClient } from "@tanstack/react-query"
-import { useContactMessagesQuery, type ContactMessage } from "@/api/admin-queries"
-import { useReplyToContactMutation } from "@/api/mutation"
+import { useContactMessagesQuery, useContactMessageThreadQuery, type ContactMessage } from "@/api/admin-queries"
+import { useReplyToContactMutation, useSyncEmailRepliesMutation } from "@/api/mutation"
 import gsap from "gsap"
 
 // UI Components
@@ -10,7 +10,7 @@ import { Button } from "@repo/ui/components/button"
 import { Input } from "@repo/ui/components/input"
 import { Textarea } from "@repo/ui/components/textarea"
 import { ScrollArea } from "@repo/ui/components/scroll-area"
-import { Loader2, Reply, Mail, Search, CheckCircle2, CornerDownLeft, ChevronLeft } from "lucide-react"
+import { Loader2, Reply, Mail, Search, CheckCircle2, CornerDownLeft, ChevronLeft, RefreshCcw } from "lucide-react"
 
 export const Route = createFileRoute("/dashboard/messages")({
   component: DashboardMessages,
@@ -20,6 +20,7 @@ function DashboardMessages() {
   const queryClient = useQueryClient()
   const { data: messages, isLoading } = useContactMessagesQuery()
   const replyMutation = useReplyToContactMutation()
+  const syncMutation = useSyncEmailRepliesMutation()
 
   // State
   const [selectedId, setSelectedId] = useState<string | null>(null)
@@ -32,6 +33,8 @@ function DashboardMessages() {
   const detailRef = useRef<HTMLDivElement>(null)
 
   const selectedMessage = messages?.find(m => m.id === selectedId)
+  
+  const { data: threadData, isLoading: threadLoading } = useContactMessageThreadQuery(selectedId)
 
   // Filter messages based on search
   const filteredMessages = messages?.filter(msg => 
@@ -62,6 +65,22 @@ function DashboardMessages() {
     }
   }, [selectedId])
 
+  // SEAMLESS AUTO-SYNC
+  useEffect(() => {
+    const runAutoSync = async () => {
+      try {
+        await syncMutation.mutateAsync()
+        queryClient.invalidateQueries({ queryKey: ["admin", "contactMessages"] })
+        if (selectedId) {
+          queryClient.invalidateQueries({ queryKey: ["admin", "contactMessageThread", selectedId] })
+        }
+      } catch (e) {
+        // silent fail for auto sync
+      }
+    }
+    runAutoSync()
+  }, [])
+
   const handleSelectMessage = (msg: ContactMessage) => {
     setSelectedId(msg.id)
     setReplySubject(`Re: Contact from ${msg.name}`)
@@ -77,9 +96,17 @@ function DashboardMessages() {
       body: replyBody
     })
     
-    setReplySubject(`Re: Contact from ${selectedMessage.name}`)
     setReplyBody("")
     queryClient.invalidateQueries({ queryKey: ["admin", "contactMessages"] })
+    queryClient.invalidateQueries({ queryKey: ["admin", "contactMessageThread", selectedMessage.id] })
+  }
+
+  const handleSync = async () => {
+    await syncMutation.mutateAsync()
+    queryClient.invalidateQueries({ queryKey: ["admin", "contactMessages"] })
+    if (selectedId) {
+      queryClient.invalidateQueries({ queryKey: ["admin", "contactMessageThread", selectedId] })
+    }
   }
 
   if (isLoading) return (
@@ -97,6 +124,16 @@ function DashboardMessages() {
           <h1 className="text-xl font-bold tracking-tight">Inbox</h1>
           <p className="text-xs text-muted-foreground mt-0.5">Triage and respond to incoming requests.</p>
         </div>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={handleSync}
+          disabled={syncMutation.isPending}
+          className="h-8 shadow-sm"
+        >
+          <RefreshCcw className={`h-3.5 w-3.5 mr-2 ${syncMutation.isPending ? 'animate-spin' : ''}`} />
+          Sync Emails
+        </Button>
       </div>
 
       {/* SPLIT PANE LAYOUT */}
@@ -218,6 +255,34 @@ function DashboardMessages() {
                       {selectedMessage.message}
                     </p>
                   </div>
+                  
+                  {/* Replied Thread */}
+                  {threadLoading ? (
+                    <div className="flex justify-center p-4">
+                      <Loader2 className="h-5 w-5 animate-spin text-muted-foreground/50" />
+                    </div>
+                  ) : (
+                    threadData?.replies.map((reply) => {
+                      const isAdmin = reply.sender === 'admin' || (selectedMessage && !reply.sender.includes(selectedMessage.email));
+                      return (
+                        <div key={reply.id} className="p-4 md:px-8 pb-4 border-t border-border/30">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-xs font-bold text-primary">
+                              {isAdmin ? 'Admin' : reply.sender}
+                            </span>
+                            <span className="text-[10px] text-muted-foreground font-mono">
+                              {new Date(reply.createdAt).toLocaleString(undefined, { 
+                                month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' 
+                              })}
+                            </span>
+                          </div>
+                          <p className="text-sm leading-relaxed text-foreground/80 whitespace-pre-wrap max-w-3xl">
+                            {reply.message}
+                          </p>
+                        </div>
+                      )
+                    })
+                  )}
 
                   {/* 2. The Reply Composer */}
                   <div className="p-3 md:p-4 m-3 md:m-4 mt-4 bg-muted/20 border border-border rounded-xl focus-within:ring-1 focus-within:ring-ring transition-shadow mb-12">

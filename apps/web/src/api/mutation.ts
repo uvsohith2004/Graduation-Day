@@ -21,6 +21,7 @@ import {
   replyToContactMessage,
   clearImportErrors,
   saveTemplate,
+  syncEmailReplies,
 } from "@/services/fetch"
 
 export const useCheckEligibilityMutation = () => {
@@ -225,5 +226,12 @@ export const useSaveTemplateMutation = () => {
     mutationFn: saveTemplate,
     onSuccess: () => toast.success("Template saved successfully!"),
     onError: (error: any) => toast.error(error?.response?.data?.message || "Failed to save template"),
+  })
+}
+
+export const useSyncEmailRepliesMutation = () => {
+  return useMutation({
+    mutationFn: syncEmailReplies,
+    onError: (error: any) => toast.error(error?.response?.data?.message || "Failed to sync emails"),
   })
 }

@@ -94,6 +94,16 @@ export const replyToContactMessage = async (data: { messageId: string, subject: 
   return res.data
 }
 
+export const syncEmailReplies = async () => {
+  const res = await axiosInstance.post("/admin/contact-messages/sync")
+  return res.data
+}
+
+export const getContactMessageThread = async (id: string) => {
+  const res = await axiosInstance.get(`/admin/contact-messages/${id}/thread`)
+  return res.data
+}
+
 // --- New API functions for Branches and Registration Management ---
 
 export const getPublicBranches = async () => {

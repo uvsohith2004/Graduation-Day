@@ -8,6 +8,13 @@
       "when": 1782554814610,
       "tag": "0000_hard_black_cat",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1782998122140,
+      "tag": "0001_calm_mercury",
+      "breakpoints": true
     }
   ]
 }

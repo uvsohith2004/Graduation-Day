@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { db } from '../database/db';
-import { alumni, eligibility, user, session, otpCodes, contactMessages, adminAuditLogs, branchesTable, importErrors, ticketTemplate } from '../database/schemas';
-import { notInArray, eq, count, sql } from 'drizzle-orm';
+import { alumni, eligibility, user, session, otpCodes, contactMessages, contactMessageReplies, adminAuditLogs, branchesTable, importErrors, ticketTemplate } from '../database/schemas';
+import { notInArray, eq, count, sql, and } from 'drizzle-orm';
+import { ImapFlow } from 'imapflow';
+import { simpleParser } from 'mailparser';
 import * as nodemailer from 'nodemailer';
 
 @Injectable()
@@ -276,10 +278,12 @@ export class AdminService {
 
     const { email, name, message } = messageRecord[0];
 
+    const subjectWithRef = subject.includes('[Ref:') ? subject : `${subject} [Ref:${messageId}]`;
+
     await this.transporter.sendMail({
       from: process.env.GMAIL_USER,
       to: email,
-      subject: subject,
+      subject: subjectWithRef,
       html: `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 32px; border: 1px solid #e5e7eb; border-radius: 12px;">
           <h2 style="color: #09090b; margin-bottom: 24px;">Response to your inquiry</h2>
@@ -300,9 +304,107 @@ export class AdminService {
       `,
     });
 
+    await db.insert(contactMessageReplies).values({
+      id: crypto.randomUUID(),
+      contactMessageId: messageId,
+      sender: process.env.GMAIL_USER || 'admin',
+      message: body,
+    });
+
     await db.update(contactMessages).set({ isReplied: true }).where(eq(contactMessages.id, messageId));
 
     return { success: true };
+  }
+
+  async syncEmailReplies() {
+    if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
+      throw new Error('Gmail credentials not configured');
+    }
+
+    const client = new ImapFlow({
+      host: 'imap.gmail.com',
+      port: 993,
+      secure: true,
+      auth: {
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_APP_PASSWORD,
+      },
+      logger: false,
+    });
+
+    try {
+      await client.connect();
+      const lock = await client.getMailboxLock('INBOX');
+      try {
+        const unseenMessages: any[] = [];
+        const lastWeek = new Date();
+        lastWeek.setDate(lastWeek.getDate() - 7);
+        
+        for await (const message of client.fetch({ since: lastWeek }, { source: true })) {
+          unseenMessages.push(message);
+        }
+
+        for (const msg of unseenMessages) {
+          if (!msg.source) continue;
+          
+          const parsed = await simpleParser(msg.source);
+          const refMatch = parsed.subject?.match(/\[Ref:([a-zA-Z0-9-]+)\]/);
+          
+          if (refMatch && refMatch[1]) {
+            const messageId = refMatch[1];
+            
+            const existingMessage = await db.select().from(contactMessages).where(eq(contactMessages.id, messageId));
+            
+            if (existingMessage.length > 0) {
+              // Strip quoted email history
+              let cleanText = parsed.text || '';
+              cleanText = cleanText.split(/^On\s+.*?wrote:/im)[0];
+              cleanText = cleanText.split(/^-{3,}\s*Original Message\s*-{3,}/im)[0];
+              cleanText = cleanText.split(/^From:\s+/im)[0];
+              cleanText = cleanText.split(/^_{3,}/im)[0];
+              cleanText = cleanText.trim();
+
+              // Check if we already have this reply (prevent duplicates)
+              const existingReply = await db.select().from(contactMessageReplies).where(
+                and(
+                  eq(contactMessageReplies.contactMessageId, messageId),
+                  eq(contactMessageReplies.message, cleanText)
+                )
+              );
+
+              if (existingReply.length === 0 && cleanText.length > 0) {
+                await db.insert(contactMessageReplies).values({
+                  id: crypto.randomUUID(),
+                  contactMessageId: messageId,
+                  sender: parsed.from?.value?.[0]?.address || 'user',
+                  message: cleanText,
+                });
+              }
+            }
+          }
+        }
+      } finally {
+        lock.release();
+      }
+    } catch (e: any) {
+      console.error('IMAP Error:', e);
+      throw new Error('Failed to sync emails: ' + e.message);
+    } finally {
+      await client.logout();
+    }
+    return { success: true };
+  }
+
+  async getContactMessageThread(messageId: string) {
+    const original = await db.select().from(contactMessages).where(eq(contactMessages.id, messageId));
+    if (!original.length) throw new Error('Message not found');
+    
+    const replies = await db.select().from(contactMessageReplies).where(eq(contactMessageReplies.contactMessageId, messageId)).orderBy(sql`${contactMessageReplies.createdAt} ASC`);
+    
+    return {
+      message: original[0],
+      replies
+    };
   }
 
   async getDashboardStats() {

@@ -12,3 +12,13 @@ export const contactMessages = pgTable("contact_messages", {
   isReplied: boolean("is_replied").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
+
+export const contactMessageReplies = pgTable("contact_message_replies", {
+  id: text("id").primaryKey(),
+  contactMessageId: text("contact_message_id")
+    .notNull()
+    .references(() => contactMessages.id, { onDelete: "cascade" }),
+  sender: text("sender").notNull(),
+  message: text("message").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
