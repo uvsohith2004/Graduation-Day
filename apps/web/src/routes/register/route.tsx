@@ -16,7 +16,7 @@ import {
   useUploadFileMutation,
   useCheckEligibilityMutation,
 } from "@/api/mutation"
-import { useRegistrationQuery } from "@/api/queries"
+import { useRegistrationQuery, useSettingsQuery } from "@/api/queries"
 
 export const Route = createFileRoute("/register")({
   component: RegisterPage,
@@ -82,9 +82,12 @@ function RegisterPage() {
   const checkEligibilityMutation = useCheckEligibilityMutation()
 
   // --- Loading state ---
+  const { data: settingsData, isPending: isSettingsPending } = useSettingsQuery()
+
   if (
     isAuthPending ||
     isRegPending ||
+    isSettingsPending ||
     (registrationData && session?.user?.id)
   ) {
     return (
@@ -94,6 +97,21 @@ function RegisterPage() {
             <div className="flex h-75 items-center justify-center p-10">
               <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
             </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (settingsData && !settingsData.isRegistrationOpen) {
+    return (
+      <div className="flex min-h-screen flex-col bg-background pt-10">
+        <div className="flex flex-1 flex-col md:items-center md:justify-center md:px-4 md:py-12">
+          <div className="w-full md:max-w-md p-8 text-center md:rounded-3xl md:border md:border-border md:bg-card md:shadow-sm">
+            <h1 className="text-2xl font-bold mb-2">Registration Closed</h1>
+            <p className="text-muted-foreground">
+              Registration is currently closed. If you have any questions, please contact the administrator.
+            </p>
           </div>
         </div>
       </div>

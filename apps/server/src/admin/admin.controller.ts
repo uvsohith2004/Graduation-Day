@@ -186,4 +186,12 @@ export class AdminController {
     }
     return this.adminService.saveTemplate(data);
   }
+
+  @Put('settings')
+  async updateSettings(@Body() data: { isRegistrationOpen: boolean }) {
+    if (typeof data.isRegistrationOpen !== 'boolean') {
+      throw new HttpException('isRegistrationOpen must be a boolean', HttpStatus.BAD_REQUEST);
+    }
+    return this.adminService.updateSettings(data.isRegistrationOpen);
+  }
 }

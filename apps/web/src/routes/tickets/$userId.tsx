@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, Link } from '@tanstack/react-router';
-import { useRegistrationQuery } from '@/api/queries';
+import { useRegistrationQuery, useSettingsQuery } from '@/api/queries';
 import {
   useUpdateRegistrationMutation,
   useRequestPhotoEditMutation,
@@ -27,6 +27,7 @@ function TicketComponent() {
   const queryClient = useQueryClient();
   const { data: session, isPending: isAuthPending } = authClient.useSession();
   const { data: ticket, isPending: isTicketPending } = useRegistrationQuery();
+  const { data: settingsData } = useSettingsQuery();
   
   const updateRegMutation = useUpdateRegistrationMutation();
   const requestPhotoMutation = useRequestPhotoEditMutation();
@@ -118,7 +119,7 @@ function TicketComponent() {
   const handlePhotoUpload = async () => {
     if (!photoFile || !session?.user?.id) return;
     try {
-      const { uploadUrl, url } = await getUrlMutation.mutateAsync({
+      const { uploadUrl, fileUrl } = await getUrlMutation.mutateAsync({
         fileType: photoFile.type,
         fileSize: photoFile.size
       });
@@ -128,7 +129,7 @@ function TicketComponent() {
       });
       await updateRegMutation.mutateAsync({
         userId: session.user.id,
-        photo: url
+        photo: fileUrl
       });
       setPhotoDialogOpen(false);
       setPhotoFile(null);
@@ -137,7 +138,7 @@ function TicketComponent() {
       // Update cache immediately so access is gone instantly
       queryClient.setQueryData(["registration", session.user.id], (old: any) => {
         if (!old) return old;
-        return { ...old, photo: url, can_edit_photo: false, photo_edit_request: false };
+        return { ...old, photo: fileUrl, can_edit_photo: false, photo_edit_request: false };
       });
       
       toast.success("Photo updated successfully!");
@@ -230,35 +231,52 @@ function TicketComponent() {
               )}
             </Button>
             
-            <div className="flex gap-3">
-              <Button
-                variant="outline"
-                className="h-12 rounded-2xl text-[15px] font-medium flex-1"
-                onClick={() => setEditDialogOpen(true)}
-              >
-                <Edit2 className="mr-2 w-4 h-4" />
-                Edit Details
-              </Button>
-              <Button
-                variant={ticket.can_edit_photo ? "default" : "outline"}
-                className={cn(
-                  "h-12 rounded-2xl text-[15px] font-medium flex-1",
-                  ticket.can_edit_photo && "bg-primary text-primary-foreground hover:bg-primary/90"
-                )}
-                onClick={() => {
-                  if (ticket.can_edit_photo) {
-                    setPhotoDialogOpen(true);
-                  } else if (!ticket.photo_edit_request) {
-                    handleRequestPhotoEdit();
-                  } else {
-                    toast.info("Photo edit request is already pending approval.");
-                  }
-                }}
-              >
-                <ImageIcon className="mr-2 w-4 h-4" />
-                {ticket.can_edit_photo ? "Upload Photo" : ticket.photo_edit_request ? "Request Pending" : "Change Photo"}
-              </Button>
-            </div>
+            {settingsData?.isRegistrationOpen && (
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  className="h-12 rounded-2xl text-[15px] font-medium flex-1"
+                  onClick={() => setEditDialogOpen(true)}
+                >
+                  <Edit2 className="mr-2 w-4 h-4" />
+                  Edit Details
+                </Button>
+                <Button
+                  variant={ticket.can_edit_photo ? "default" : "outline"}
+                  className={cn(
+                    "h-12 rounded-2xl text-[15px] font-medium flex-1",
+                    ticket.can_edit_photo && "bg-primary text-primary-foreground hover:bg-primary/90"
+                  )}
+                  onClick={() => {
+                    if (ticket.can_edit_photo) {
+                      setPhotoDialogOpen(true);
+                    } else if (!ticket.photo_edit_request) {
+                      handleRequestPhotoEdit();
+                    } else {
+                      toast.info("Your request to change photo is pending approval from admin.");
+                    }
+                  }}
+                  disabled={requestPhotoMutation.isPending}
+                >
+                  {ticket.can_edit_photo ? (
+                    <>
+                      <ImageIcon className="mr-2 w-4 h-4" />
+                      Upload Photo
+                    </>
+                  ) : ticket.photo_edit_request ? (
+                    <>
+                      <Loader2 className="mr-2 w-4 h-4 animate-spin" />
+                      Request Pending
+                    </>
+                  ) : (
+                    <>
+                      <ImageIcon className="mr-2 w-4 h-4" />
+                      Change Photo
+                    </>
+                  )}
+                </Button>
+              </div>
+            )}
 
             <Link to="/" className="w-full">
               <Button

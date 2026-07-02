@@ -19,4 +19,9 @@ export class AppController {
   async getPublicBranches() {
     return this.appService.getPublicBranches();
   }
+
+  @Get('public/settings')
+  async getPublicSettings() {
+    return this.appService.getPublicSettings();
+  }
 }

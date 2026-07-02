@@ -1,6 +1,6 @@
 import { Injectable, Inject, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectDB } from '../database/inject-db.decorator';
-import { alumni, eligibility, branchesTable } from '../database/schemas';
+import { alumni, eligibility, branchesTable, settings } from '../database/schemas';
 import { eq } from 'drizzle-orm';
 import { CreateAlumniDto } from './dto/create-alumni.dto';
 
@@ -8,7 +8,18 @@ import { CreateAlumniDto } from './dto/create-alumni.dto';
 export class RegisterService {
   constructor(@InjectDB() private readonly db) {}
 
+  private async checkRegistrationOpen() {
+    const config = await this.db.query.settings.findFirst({
+      where: eq(settings.id, 'default')
+    });
+    if (config && !config.isRegistrationOpen) {
+      throw new HttpException('Registration is currently closed.', HttpStatus.FORBIDDEN);
+    }
+  }
+
   async createAlumni(userId: string, email: string, payload: CreateAlumniDto) {
+    await this.checkRegistrationOpen();
+
     try {
       const existingUser = await this.db.query.alumni.findFirst({
         where: eq(alumni.userId, userId),
@@ -97,6 +108,7 @@ export class RegisterService {
   }
 
   async updateTicket(userId: string, payload: any) {
+    await this.checkRegistrationOpen();
     const existingUser = await this.db.query.alumni.findFirst({
       where: eq(alumni.userId, userId),
     });
@@ -142,6 +154,7 @@ export class RegisterService {
   }
 
   async requestPhotoEdit(userId: string) {
+    await this.checkRegistrationOpen();
     const existingUser = await this.db.query.alumni.findFirst({
       where: eq(alumni.userId, userId),
     });

@@ -3,6 +3,12 @@ import { createFileRoute } from "@tanstack/react-router"
 import { useOverviewStatsQuery, useBranchesQuery } from "@/api/admin-queries"
 import { Skeleton } from "@repo/ui/components/skeleton"
 import { GraduationCap, Users, UserX, TrendingUp } from "lucide-react"
+import { Switch } from "@repo/ui/components/switch"
+import { Label } from "@repo/ui/components/label"
+import { useSettingsQuery } from "@/api/queries"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { updateSettings } from "@/services/fetch"
+import { toast } from "sonner"
 import gsap from "gsap"
 
 export const Route = createFileRoute("/dashboard/")({
@@ -33,6 +39,19 @@ function AnimatedNumber({ value, className }: { value: number; className?: strin
 function DashboardOverview() {
   const { data: stats, isLoading: isOverviewLoading } = useOverviewStatsQuery()
   const { data: branchesData, isLoading: isBranchesLoading } = useBranchesQuery()
+  const { data: settingsData } = useSettingsQuery()
+  const queryClient = useQueryClient()
+
+  const { mutate: toggleRegistration, isPending: isToggling } = useMutation({
+    mutationFn: updateSettings,
+    onSuccess: (data) => {
+      queryClient.setQueryData(["settings"], { isRegistrationOpen: data.isRegistrationOpen })
+      toast.success("Registration status updated successfully")
+    },
+    onError: () => {
+      toast.error("Failed to update registration status")
+    }
+  })
 
   const dashboardBranches = branchesData?.map((b) => b.name) || []
   const isLoading = isOverviewLoading || isBranchesLoading
@@ -104,6 +123,20 @@ function DashboardOverview() {
           <p className="text-sm text-muted-foreground">
             {overallPct}% of alumni registered across all branches
           </p>
+        </div>
+        <div className="flex items-center space-x-3 rounded-lg border bg-card px-4 py-2 shadow-sm">
+          <div className="space-y-0.5">
+            <Label htmlFor="registration-toggle" className="text-sm font-medium">Registration</Label>
+            <p className="text-xs text-muted-foreground">
+              {settingsData?.isRegistrationOpen ? "Currently Open" : "Currently Closed"}
+            </p>
+          </div>
+          <Switch
+            id="registration-toggle"
+            checked={settingsData?.isRegistrationOpen ?? true}
+            disabled={isToggling}
+            onCheckedChange={(checked) => toggleRegistration(checked)}
+          />
         </div>
       </div>
 

@@ -7,3 +7,4 @@ export * from './audit.schema';
 export * from './branch.schema';
 export * from './import-errors.schema';
 export * from './template.schema';
+export * from './settings.schema';

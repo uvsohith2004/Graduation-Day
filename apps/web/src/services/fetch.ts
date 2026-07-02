@@ -180,3 +180,13 @@ export const saveTemplate = async (data: { bgImageUrl: string; config: any }) =>
   const res = await axiosInstance.post("/admin/template", data)
   return res.data
 }
+
+export const getSettings = async () => {
+  const res = await axiosInstance.get("/public/settings")
+  return res.data
+}
+
+export const updateSettings = async (isRegistrationOpen: boolean) => {
+  const res = await axiosInstance.put("/admin/settings", { isRegistrationOpen })
+  return res.data
+}

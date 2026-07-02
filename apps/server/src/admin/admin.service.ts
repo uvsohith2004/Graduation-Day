@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { db } from '../database/db';
-import { alumni, eligibility, user, session, otpCodes, contactMessages, contactMessageReplies, adminAuditLogs, branchesTable, importErrors, ticketTemplate } from '../database/schemas';
+import { alumni, eligibility, user, session, otpCodes, contactMessages, contactMessageReplies, adminAuditLogs, branchesTable, importErrors, ticketTemplate, settings } from '../database/schemas';
 import { notInArray, eq, count, sql, and } from 'drizzle-orm';
 import { ImapFlow } from 'imapflow';
 import { simpleParser } from 'mailparser';
@@ -443,6 +443,20 @@ export class AdminService {
       set: {
         bgImageUrl: data.bgImageUrl,
         config: data.config,
+        updatedAt: sql`now()`
+      }
+    });
+    return { success: true };
+  }
+
+  async updateSettings(isRegistrationOpen: boolean) {
+    await db.insert(settings).values({
+      id: 'default',
+      isRegistrationOpen,
+    }).onConflictDoUpdate({
+      target: settings.id,
+      set: {
+        isRegistrationOpen,
         updatedAt: sql`now()`
       }
     });
